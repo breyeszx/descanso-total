@@ -21,7 +21,7 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [x] Crear proyecto Next.js + TypeScript + Tailwind + shadcn/ui.
 - [x] Clientes server/browser (`@supabase/ssr`), proxy de sesión, `requirePerfil()`.
 - [x] Layout base, navegación por rol, login, registro, dashboard.
-- [ ] `.env.local` con claves del proyecto Supabase y aplicar `supabase/migrations/0001_profiles.sql`.
+- [x] `.env.local` con claves del proyecto Supabase, migración 0001 aplicada, admin de prueba creado (`scripts/seed-admin.mjs`), login verificado en navegador.
 
 ### Fase 1 – Datos y autenticación (RF01, RNF04, RNF09, RNF15)
 - [ ] Migración inicial: profiles, clientes, departamentos, fotos, tarifas, inventario, reservas, acompañantes, servicios_extra, reserva_servicios, pagos, transportes, tours, mantenciones, movimientos_dinero, actas, auditoria.
@@ -72,6 +72,6 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Manuales por rol y documentación técnica.
 
 ## Estado
-Fase actual: 0 (falta conectar Supabase y aplicar migración 0001). Actualizar esta sección al cerrar cada fase.
+Fase actual: 1 (Fase 0 cerrada el 29-09-2026). Actualizar esta sección al cerrar cada fase.
 
-Notas: shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.
+Notas: migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.
