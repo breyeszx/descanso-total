@@ -24,10 +24,12 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [x] `.env.local` con claves del proyecto Supabase, migración 0001 aplicada, admin de prueba creado (`scripts/seed-admin.mjs`), login verificado en navegador.
 
 ### Fase 1 – Datos y autenticación (RF01, RNF04, RNF09, RNF15)
-- [ ] Migración inicial: profiles, clientes, departamentos, fotos, tarifas, inventario, reservas, acompañantes, servicios_extra, reserva_servicios, pagos, transportes, tours, mantenciones, movimientos_dinero, actas, auditoria.
-- [ ] Enums de estado (departamento, reserva, pago). Exclusion constraint en reservas (departamento + daterange).
-- [ ] RLS por rol, trigger de auditoría, seed de 10 departamentos.
-- [ ] Middleware de auth y guards por rol. Tipos generados de Supabase.
+- [x] Migración 0002: 22 tablas (configuracion, zonas, departamentos, fotos, tarifas_temporada, servicios, vehiculos, conductores, clientes, inventario_items/movimientos, reservas, acompanantes, reserva_servicios, transportes, pagos, actas, reserva_cargos, mantenciones, movimientos_financieros, notificaciones, auditoria).
+- [x] Reglas en BD: exclusion constraint anti-overbooking, bloqueo reserva<->mantención, cálculo de arriendo por tarifa/temporada, anticipo por configuración, recálculo de totales, pago aprobado => confirmada + ingreso financiero, actas => en_curso/finalizada, auditoría inmutable.
+- [x] Funciones: `departamentos_disponibles()`, `estado_departamento_actual()`, `tarifa_noche()`, `calcular_arriendo()`, `recalcular_reserva()`. Vista `vw_departamentos`.
+- [x] RLS por rol en todas las tablas, buckets de Storage (departamentos público; actas, firmas, comprobantes privados).
+- [x] Migración 0003: configuración, 5 zonas, 10 departamentos, 7 servicios, flota de prueba.
+- [x] Tipos generados en `src/lib/supabase/database.types.ts` (regenerar tras cada migración: `npx supabase gen types typescript --db-url "$SUPABASE_DB_URL" --schema public`).
 
 ### Fase 2 – Administración central (RF02, RF03, RF04, RF05)
 - [ ] CRUD clientes (sin duplicados por RUT/email).
@@ -72,6 +74,6 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Manuales por rol y documentación técnica.
 
 ## Estado
-Fase actual: 1 (Fase 0 cerrada el 29-09-2026). Actualizar esta sección al cerrar cada fase.
+Fase actual: 2 (Fases 0 y 1 cerradas el 29-09-2026). Actualizar esta sección al cerrar cada fase.
 
 Notas: migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.

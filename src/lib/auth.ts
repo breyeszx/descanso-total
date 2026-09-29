@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export type Rol = "admin" | "funcionario" | "cliente";
+import type { Database } from "@/lib/supabase/database.types";
+
+export type Rol = Database["public"]["Enums"]["rol_usuario"];
 
 export type Perfil = {
   id: string;
@@ -25,5 +27,5 @@ export async function requirePerfil(roles?: Rol[]): Promise<Perfil> {
     .single();
   if (!perfil) redirect("/login");
   if (roles && !roles.includes(perfil.rol)) redirect("/dashboard");
-  return perfil as Perfil;
+  return perfil;
 }
