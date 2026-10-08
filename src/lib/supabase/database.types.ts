@@ -9,6 +9,7 @@ export type Database = {
                   Row: {
                     "applied_at": string,"name": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "applied_at"?: string,"name": string
                   }
@@ -22,6 +23,7 @@ export type Database = {
                   Row: {
                     "created_at": string,"documento": string,"fecha_nacimiento": string | null,"id": number,"nombre": string,"reserva_id": number,"telefono": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"documento": string,"fecha_nacimiento"?: string | null,"id"?: never,"nombre": string,"reserva_id": number,"telefono"?: string | null
                   }
@@ -41,6 +43,7 @@ isOneToOne: false
                   Row: {
                     "checklist": NonNullable<Json>,"created_at": string,"fecha": string,"firma_conformidad": boolean,"firma_path": string | null,"funcionario_id": string,"id": number,"monto_cobrado": number,"observaciones": string | null,"pdf_path": string | null,"reserva_id": number,"tipo": Database["public"]['Enums']["tipo_acta"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "checklist"?: NonNullable<Json>,"created_at"?: string,"fecha"?: string,"firma_conformidad"?: boolean,"firma_path"?: string | null,"funcionario_id": string,"id"?: never,"monto_cobrado"?: number,"observaciones"?: string | null,"pdf_path"?: string | null,"reserva_id": number,"tipo": Database["public"]['Enums']["tipo_acta"]
                   }
@@ -66,6 +69,7 @@ isOneToOne: false
                   Row: {
                     "accion": string,"created_at": string,"datos_antes": Json | null,"datos_despues": Json | null,"id": number,"registro_id": string,"tabla": string,"usuario_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "accion": string,"created_at"?: string,"datos_antes"?: Json | null,"datos_despues"?: Json | null,"id"?: never,"registro_id": string,"tabla": string,"usuario_id"?: string | null
                   }
@@ -79,6 +83,7 @@ isOneToOne: false
                   Row: {
                     "apellido": string | null,"created_at": string,"direccion": string | null,"email": string,"id": number,"nombre": string,"notas": string | null,"pais": string | null,"profile_id": string | null,"rut": string | null,"telefono": string | null,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "apellido"?: string | null,"created_at"?: string,"direccion"?: string | null,"email": string,"id"?: never,"nombre": string,"notas"?: string | null,"pais"?: string | null,"profile_id"?: string | null,"rut"?: string | null,"telefono"?: string | null,"updated_at"?: string
                   }
@@ -98,6 +103,7 @@ isOneToOne: true
                   Row: {
                     "activo": boolean,"id": number,"licencia": string | null,"nombre": string,"telefono": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "activo"?: boolean,"id"?: never,"licencia"?: string | null,"nombre": string,"telefono"?: string | null
                   }
@@ -111,6 +117,7 @@ isOneToOne: true
                   Row: {
                     "clave": string,"descripcion": string | null,"updated_at": string,"valor": NonNullable<Json>
                   }
+                  ComputedFields: never
                   Insert: {
                     "clave": string,"descripcion"?: string | null,"updated_at"?: string,"valor": NonNullable<Json>
                   }
@@ -124,6 +131,7 @@ isOneToOne: true
                   Row: {
                     "created_at": string,"departamento_id": number,"es_portada": boolean,"id": number,"orden": number,"storage_path": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"departamento_id": number,"es_portada"?: boolean,"id"?: never,"orden"?: number,"storage_path": string
                   }
@@ -149,6 +157,7 @@ isOneToOne: false
                   Row: {
                     "activo": boolean,"amenidades": (string)[],"banos": number,"capacidad_max": number,"codigo": string,"created_at": string,"descripcion": string | null,"direccion": string,"dormitorios": number,"id": number,"nombre": string,"tarifa_base": number,"updated_at": string,"zona_id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "activo"?: boolean,"amenidades"?: (string)[],"banos"?: number,"capacidad_max"?: number,"codigo": string,"created_at"?: string,"descripcion"?: string | null,"direccion": string,"dormitorios"?: number,"id"?: never,"nombre": string,"tarifa_base": number,"updated_at"?: string,"zona_id": number
                   }
@@ -168,6 +177,7 @@ isOneToOne: false
                   Row: {
                     "cantidad": number,"categoria": string | null,"created_at": string,"departamento_id": number,"descripcion": string | null,"estado": Database["public"]['Enums']["estado_item"],"fecha_adquisicion": string | null,"id": number,"nombre": string,"updated_at": string,"valor_unitario": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "cantidad"?: number,"categoria"?: string | null,"created_at"?: string,"departamento_id": number,"descripcion"?: string | null,"estado"?: Database["public"]['Enums']["estado_item"],"fecha_adquisicion"?: string | null,"id"?: never,"nombre": string,"updated_at"?: string,"valor_unitario"?: number
                   }
@@ -193,6 +203,7 @@ isOneToOne: false
                   Row: {
                     "cantidad": number,"costo": number,"created_at": string,"descripcion": string | null,"id": number,"item_id": number,"registrado_por": string | null,"reserva_id": number | null,"tipo": Database["public"]['Enums']["tipo_movimiento_inventario"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "cantidad"?: number,"costo"?: number,"created_at"?: string,"descripcion"?: string | null,"id"?: never,"item_id": number,"registrado_por"?: string | null,"reserva_id"?: number | null,"tipo": Database["public"]['Enums']["tipo_movimiento_inventario"]
                   }
@@ -224,6 +235,7 @@ isOneToOne: false
                   Row: {
                     "costo": number,"creado_por": string | null,"created_at": string,"departamento_id": number,"descripcion": string | null,"estado": Database["public"]['Enums']["estado_mantencion"],"fecha_fin": string,"fecha_inicio": string,"id": number,"responsable": string | null,"titulo": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "costo"?: number,"creado_por"?: string | null,"created_at"?: string,"departamento_id": number,"descripcion"?: string | null,"estado"?: Database["public"]['Enums']["estado_mantencion"],"fecha_fin": string,"fecha_inicio": string,"id"?: never,"responsable"?: string | null,"titulo": string,"updated_at"?: string
                   }
@@ -255,6 +267,7 @@ isOneToOne: false
                   Row: {
                     "categoria": Database["public"]['Enums']["categoria_movimiento"],"comprobante_path": string | null,"created_at": string,"departamento_id": number | null,"descripcion": string | null,"fecha": string,"id": number,"mantencion_id": number | null,"monto": number,"pago_id": number | null,"registrado_por": string | null,"reserva_id": number | null,"tipo": Database["public"]['Enums']["tipo_movimiento"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "categoria": Database["public"]['Enums']["categoria_movimiento"],"comprobante_path"?: string | null,"created_at"?: string,"departamento_id"?: number | null,"descripcion"?: string | null,"fecha"?: string,"id"?: never,"mantencion_id"?: number | null,"monto": number,"pago_id"?: number | null,"registrado_por"?: string | null,"reserva_id"?: number | null,"tipo": Database["public"]['Enums']["tipo_movimiento"]
                   }
@@ -304,6 +317,7 @@ isOneToOne: false
                   Row: {
                     "asunto": string,"created_at": string,"destinatario": string,"enviada_at": string | null,"error": string | null,"estado": Database["public"]['Enums']["estado_notificacion"],"id": number,"payload": NonNullable<Json>,"programada_para": string,"proveedor_id": string | null,"reserva_id": number | null,"tipo": Database["public"]['Enums']["tipo_notificacion"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "asunto": string,"created_at"?: string,"destinatario": string,"enviada_at"?: string | null,"error"?: string | null,"estado"?: Database["public"]['Enums']["estado_notificacion"],"id"?: never,"payload"?: NonNullable<Json>,"programada_para"?: string,"proveedor_id"?: string | null,"reserva_id"?: number | null,"tipo": Database["public"]['Enums']["tipo_notificacion"]
                   }
@@ -323,6 +337,7 @@ isOneToOne: false
                   Row: {
                     "concepto": Database["public"]['Enums']["concepto_pago"],"created_at": string,"estado": Database["public"]['Enums']["estado_pago"],"id": number,"medio": Database["public"]['Enums']["medio_pago"],"monto": number,"notas": string | null,"pagado_at": string | null,"registrado_por": string | null,"reserva_id": number,"updated_at": string,"webpay_authorization_code": string | null,"webpay_buy_order": string | null,"webpay_response": Json | null,"webpay_token": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "concepto": Database["public"]['Enums']["concepto_pago"],"created_at"?: string,"estado"?: Database["public"]['Enums']["estado_pago"],"id"?: never,"medio": Database["public"]['Enums']["medio_pago"],"monto": number,"notas"?: string | null,"pagado_at"?: string | null,"registrado_por"?: string | null,"reserva_id": number,"updated_at"?: string,"webpay_authorization_code"?: string | null,"webpay_buy_order"?: string | null,"webpay_response"?: Json | null,"webpay_token"?: string | null
                   }
@@ -348,6 +363,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"email": string,"id": string,"nombre": string,"rol": Database["public"]['Enums']["rol_usuario"],"telefono": string | null,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"email": string,"id": string,"nombre": string,"rol"?: Database["public"]['Enums']["rol_usuario"],"telefono"?: string | null,"updated_at"?: string
                   }
@@ -361,6 +377,7 @@ isOneToOne: false
                   Row: {
                     "acta_id": number | null,"created_at": string,"descripcion": string,"id": number,"inventario_item_id": number | null,"monto": number,"registrado_por": string | null,"reserva_id": number,"tipo": Database["public"]['Enums']["tipo_cargo"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "acta_id"?: number | null,"created_at"?: string,"descripcion": string,"id"?: never,"inventario_item_id"?: number | null,"monto": number,"registrado_por"?: string | null,"reserva_id": number,"tipo": Database["public"]['Enums']["tipo_cargo"]
                   }
@@ -398,6 +415,7 @@ isOneToOne: false
                   Row: {
                     "cantidad": number,"created_at": string,"estado": Database["public"]['Enums']["estado_reserva_servicio"],"fecha_programada": string | null,"id": number,"notas": string | null,"precio_unitario": number,"reserva_id": number,"servicio_id": number,"subtotal": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "cantidad"?: number,"created_at"?: string,"estado"?: Database["public"]['Enums']["estado_reserva_servicio"],"fecha_programada"?: string | null,"id"?: never,"notas"?: string | null,"precio_unitario": number,"reserva_id": number,"servicio_id": number,"subtotal"?: never
                   }
@@ -423,6 +441,7 @@ isOneToOne: false
                   Row: {
                     "cancelada_at": string | null,"cliente_id": number,"codigo": string,"creado_por": string | null,"created_at": string,"departamento_id": number,"estado": Database["public"]['Enums']["estado_reserva"],"fecha_fin": string,"fecha_inicio": string,"id": number,"monto_anticipo": number,"monto_arriendo": number,"monto_cargos": number,"monto_pagado": number,"monto_servicios": number,"monto_total": number,"motivo_cancelacion": string | null,"noches": number | null,"notas": string | null,"num_huespedes": number,"origen": Database["public"]['Enums']["origen_reserva"],"saldo_pendiente": number | null,"tarifa_noche_aplicada": number | null,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "cancelada_at"?: string | null,"cliente_id": number,"codigo": string,"creado_por"?: string | null,"created_at"?: string,"departamento_id": number,"estado"?: Database["public"]['Enums']["estado_reserva"],"fecha_fin": string,"fecha_inicio": string,"id"?: never,"monto_anticipo"?: number,"monto_arriendo"?: number,"monto_cargos"?: number,"monto_pagado"?: number,"monto_servicios"?: number,"monto_total"?: number,"motivo_cancelacion"?: string | null,"noches"?: never,"notas"?: string | null,"num_huespedes"?: number,"origen"?: Database["public"]['Enums']["origen_reserva"],"saldo_pendiente"?: never,"tarifa_noche_aplicada"?: number | null,"updated_at"?: string
                   }
@@ -460,6 +479,7 @@ isOneToOne: false
                   Row: {
                     "activo": boolean,"created_at": string,"cupo_max": number | null,"descripcion": string | null,"duracion_horas": number | null,"id": number,"nombre": string,"precio": number,"requiere_transporte": boolean,"tipo": Database["public"]['Enums']["tipo_servicio"],"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "activo"?: boolean,"created_at"?: string,"cupo_max"?: number | null,"descripcion"?: string | null,"duracion_horas"?: number | null,"id"?: never,"nombre": string,"precio": number,"requiere_transporte"?: boolean,"tipo": Database["public"]['Enums']["tipo_servicio"],"updated_at"?: string
                   }
@@ -473,6 +493,7 @@ isOneToOne: false
                   Row: {
                     "departamento_id": number | null,"fecha_fin": string,"fecha_inicio": string,"id": number,"nombre": string,"tarifa_noche": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "departamento_id"?: number | null,"fecha_fin": string,"fecha_inicio": string,"id"?: never,"nombre": string,"tarifa_noche": number
                   }
@@ -498,6 +519,7 @@ isOneToOne: false
                   Row: {
                     "conductor_id": number | null,"correo_enviado_at": string | null,"created_at": string,"destino": string | null,"estado": Database["public"]['Enums']["estado_transporte"],"fecha_hora": string,"id": number,"notas": string | null,"origen": string | null,"pasajeros": number,"reserva_id": number,"reserva_servicio_id": number | null,"tipo": Database["public"]['Enums']["tipo_transporte"],"updated_at": string,"vehiculo_id": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "conductor_id"?: number | null,"correo_enviado_at"?: string | null,"created_at"?: string,"destino"?: string | null,"estado"?: Database["public"]['Enums']["estado_transporte"],"fecha_hora": string,"id"?: never,"notas"?: string | null,"origen"?: string | null,"pasajeros"?: number,"reserva_id": number,"reserva_servicio_id"?: number | null,"tipo": Database["public"]['Enums']["tipo_transporte"],"updated_at"?: string,"vehiculo_id"?: number | null
                   }
@@ -535,6 +557,7 @@ isOneToOne: false
                   Row: {
                     "activo": boolean,"capacidad": number,"id": number,"marca": string | null,"modelo": string | null,"patente": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "activo"?: boolean,"capacidad"?: number,"id"?: never,"marca"?: string | null,"modelo"?: string | null,"patente": string
                   }
@@ -548,6 +571,7 @@ isOneToOne: false
                   Row: {
                     "activa": boolean,"descripcion": string | null,"id": number,"nombre": string,"region": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "activa"?: boolean,"descripcion"?: string | null,"id"?: never,"nombre": string,"region"?: string | null
                   }
@@ -564,6 +588,7 @@ isOneToOne: false
                   Row: {
                     "activo": boolean | null,"amenidades": (string)[] | null,"banos": number | null,"capacidad_max": number | null,"codigo": string | null,"created_at": string | null,"descripcion": string | null,"direccion": string | null,"dormitorios": number | null,"estado_actual": Database["public"]['Enums']["estado_departamento"] | null,"foto_portada": string | null,"id": number | null,"nombre": string | null,"tarifa_base": number | null,"updated_at": string | null,"zona_id": number | null,"zona_nombre": string | null
                   }
+                  ComputedFields: never
                   Relationships: [
                     {
       foreignKeyName: "departamentos_zona_id_fkey"
@@ -579,11 +604,22 @@ isOneToOne: false
             "calcular_arriendo":
 { Args: { "p_departamento": number,"p_fin": string,"p_inicio": string }; Returns: number
                            },
+"cancelar_reserva":
+{ Args: { "p_motivo"?: string,"p_reserva": number }; Returns: undefined
+                           },
 "cliente_actual_id":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
 "config_num":
 { Args: { "p_clave": string,"p_default"?: number }; Returns: number
+                           },
+"cotizar_reserva":
+{ Args: { "p_departamento": number,"p_fin": string,"p_inicio": string }; Returns: {
+              "disponible": boolean,"monto_anticipo": number,"monto_arriendo": number,"noches": number
+            }[]
+                           },
+"crear_reserva":
+{ Args: { "p_cliente"?: number,"p_departamento": number,"p_fin": string,"p_huespedes"?: number,"p_inicio": string,"p_notas"?: string,"p_servicios"?: Json }; Returns: number
                            },
 "departamentos_disponibles":
 { Args: { "p_fin": string,"p_huespedes"?: number,"p_inicio": string,"p_zona"?: number }; Returns: {
@@ -619,6 +655,9 @@ isOneToOne: false
                            },
 "mantencion_solapa":
 { Args: { "p_departamento": number,"p_fin": string,"p_inicio": string }; Returns: boolean
+                           },
+"modificar_reserva":
+{ Args: { "p_fin": string,"p_huespedes"?: number,"p_inicio": string,"p_reserva": number }; Returns: undefined
                            },
 "recalcular_reserva":
 { Args: { "p_reserva": number }; Returns: undefined
@@ -751,4 +790,3 @@ export const Constants = {
           }
         }
 } as const
-

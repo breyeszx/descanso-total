@@ -39,12 +39,13 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Pendiente para fases siguientes: gestión de tarifas por temporada y catálogo de servicios desde el panel (hoy se editan en BD).
 
 ### Fase 3 – Portal de clientes y reservas (RF06, RF07, RF08, RF11, RF17)
-- [ ] Home y catálogo público con búsqueda por zona y fechas.
-- [ ] Detalle de departamento y motor de reservas con cálculo de anticipo.
-- [ ] Registro de acompañantes previo al check-in.
-- [ ] Catálogo de servicios extra y tours contratables en la reserva.
-- [ ] Cancelación y modificación según políticas de plazo.
-- [ ] Panel "Mis reservas" del cliente.
+- [x] Home con buscador, catálogo `/departamentos` (filtra con `departamentos_disponibles`) y detalle con cotización (`cotizar_reserva`).
+- [x] Motor de reservas `/reservar/[id]`: RPC `crear_reserva` atómica (valida disponibilidad, capacidad, fechas; inserta servicios y encola notificación).
+- [x] Acompañantes (alta/baja por el cliente mientras la reserva esté activa).
+- [x] Servicios extra y tours seleccionables al reservar, con resumen en vivo.
+- [x] Cancelación (`cancelar_reserva`: multa automática si pagó y cancela fuera de plazo) y reprogramación (`modificar_reserva`, respeta plazo y disponibilidad).
+- [x] "Mis reservas" con detalle, desglose, pagos y estado. Botón Webpay deshabilitado hasta Fase 4.
+- [x] Usuario cliente de prueba: `scripts/seed-cliente.mjs` (credenciales en `.env.local`).
 
 ### Fase 4 – Pagos y notificaciones (RF12, RF23, RF10)
 - [ ] Integración Webpay Plus (transbank-sdk, ambiente de integración): anticipo, saldo, servicios, multas.
@@ -75,6 +76,6 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Manuales por rol y documentación técnica.
 
 ## Estado
-Fase actual: 3 (Fase 2 cerrada el 08-10-2026). Actualizar esta sección al cerrar cada fase.
+Fase actual: 4 (Fase 3 cerrada el 08-10-2026). Actualizar esta sección al cerrar cada fase.
 
 Notas: UI con preset shadcn `b5cReslJ2` (nova, zinc, teal, DM Sans); reaplicar con `npx shadcn@latest apply b5cReslJ2` si se reinstalan componentes. Formularios: `src/components/form/fields.tsx` + `FormState` en `src/lib/form.ts` (conserva valores tras error porque React 19 resetea el form). migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.

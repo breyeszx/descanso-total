@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requirePerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,7 @@ export const metadata = { title: "Panel" };
 
 export default async function DashboardPage() {
   const perfil = await requirePerfil();
+  if (perfil.rol === "cliente") redirect("/mis-reservas");
   if (perfil.rol !== "admin") {
     return (
       <div className="space-y-4">

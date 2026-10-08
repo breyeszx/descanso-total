@@ -15,8 +15,8 @@ const NAV: Record<string, { href: string; label: string }[]> = {
     { href: "/terreno", label: "Check-in / Check-out" },
   ],
   cliente: [
-    { href: "/dashboard", label: "Mis reservas" },
-    { href: "/departamentos", label: "Departamentos" },
+    { href: "/mis-reservas", label: "Mis reservas" },
+    { href: "/departamentos", label: "Buscar departamentos" },
   ],
 };
 
@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="font-semibold">
+            <Link href={perfil.rol === "cliente" ? "/" : "/dashboard"} className="font-semibold">
               Descanso Total
             </Link>
             <nav className="flex gap-4 text-sm">
