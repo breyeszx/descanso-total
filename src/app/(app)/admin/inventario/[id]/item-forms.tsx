@@ -28,7 +28,7 @@ export function ItemForms({ item }: { item: Tables<"inventario_items"> }) {
               ]}
             />
             <InputField name="cantidad" label="Cantidad" type="number" min={1} defaultValue={1} state={movState} />
-            <InputField name="costo" label="Costo (CLP)" type="number" min={0} step={1000} defaultValue={0} state={movState} />
+            <InputField name="costo" label="Costo (CLP)" type="number" min={0} defaultValue={0} state={movState} />
             <InputField name="descripcion" label="Descripción" state={movState} placeholder="Motivo, proveedor, reserva asociada..." />
           </CardContent>
           <CardFooter className="mt-4 flex items-center justify-between">
@@ -45,7 +45,7 @@ export function ItemForms({ item }: { item: Tables<"inventario_items"> }) {
             <InputField name="nombre" label="Nombre" state={editState} defaultValue={item.nombre} required />
             <InputField name="categoria" label="Categoría" state={editState} defaultValue={item.categoria ?? ""} />
             <InputField name="cantidad" label="Cantidad" type="number" min={0} state={editState} defaultValue={item.cantidad} />
-            <InputField name="valor_unitario" label="Valor unitario (CLP)" type="number" min={0} step={1000} state={editState} defaultValue={item.valor_unitario} />
+            <InputField name="valor_unitario" label="Valor unitario (CLP)" type="number" min={0} state={editState} defaultValue={item.valor_unitario} />
             <InputField name="fecha_adquisicion" label="Fecha adquisición" type="date" state={editState} defaultValue={item.fecha_adquisicion ?? ""} />
             <InputField name="descripcion" label="Descripción" state={editState} defaultValue={item.descripcion ?? ""} />
           </CardContent>

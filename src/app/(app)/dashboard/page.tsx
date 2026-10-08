@@ -73,7 +73,10 @@ export default async function DashboardPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Próximas llegadas y estadías</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Próximas llegadas y estadías</h2>
+          <Link href="/admin/reservas" className="text-sm text-muted-foreground hover:underline">Ver todas</Link>
+        </div>
         <Card>
           <CardContent className="p-0">
             {proximas?.length ? (

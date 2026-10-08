@@ -37,6 +37,12 @@ export type Database = {
 isOneToOne: false
       referencedRelation: "reservas"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "acompanantes_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
+      referencedColumns: ["id"]
     }
                   ]
                 },"actas": {
@@ -62,6 +68,12 @@ isOneToOne: false
       columns: ["reserva_id"]
 isOneToOne: false
       referencedRelation: "reservas"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "actas_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
       referencedColumns: ["id"]
     }
                   ]
@@ -229,6 +241,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "reservas"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "inventario_movimientos_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
+      referencedColumns: ["id"]
     }
                   ]
                 },"mantenciones": {
@@ -311,6 +329,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "reservas"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "movimientos_financieros_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
+      referencedColumns: ["id"]
     }
                   ]
                 },"notificaciones": {
@@ -330,6 +354,12 @@ isOneToOne: false
       columns: ["reserva_id"]
 isOneToOne: false
       referencedRelation: "reservas"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notificaciones_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
       referencedColumns: ["id"]
     }
                   ]
@@ -356,6 +386,12 @@ isOneToOne: false
       columns: ["reserva_id"]
 isOneToOne: false
       referencedRelation: "reservas"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "pagos_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
       referencedColumns: ["id"]
     }
                   ]
@@ -409,6 +445,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "reservas"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reserva_cargos_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
+      referencedColumns: ["id"]
     }
                   ]
                 },"reserva_servicios": {
@@ -428,6 +470,12 @@ isOneToOne: false
       columns: ["reserva_id"]
 isOneToOne: false
       referencedRelation: "reservas"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reserva_servicios_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "reserva_servicios_servicio_id_fkey"
@@ -540,6 +588,12 @@ isOneToOne: false
       referencedRelation: "reservas"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "transportes_reserva_id_fkey"
+      columns: ["reserva_id"]
+isOneToOne: false
+      referencedRelation: "vw_reservas"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "transportes_reserva_servicio_id_fkey"
       columns: ["reserva_servicio_id"]
 isOneToOne: false
@@ -598,6 +652,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"vw_reservas": {
+                  Row: {
+                    "cancelada_at": string | null,"cliente_apellido": string | null,"cliente_email": string | null,"cliente_id": number | null,"cliente_nombre": string | null,"cliente_rut": string | null,"cliente_telefono": string | null,"codigo": string | null,"creado_por": string | null,"created_at": string | null,"departamento_codigo": string | null,"departamento_id": number | null,"departamento_nombre": string | null,"estado": Database["public"]['Enums']["estado_reserva"] | null,"fecha_fin": string | null,"fecha_inicio": string | null,"id": number | null,"monto_anticipo": number | null,"monto_arriendo": number | null,"monto_cargos": number | null,"monto_pagado": number | null,"monto_servicios": number | null,"monto_total": number | null,"motivo_cancelacion": string | null,"noches": number | null,"notas": string | null,"num_huespedes": number | null,"origen": Database["public"]['Enums']["origen_reserva"] | null,"saldo_pendiente": number | null,"tarifa_noche_aplicada": number | null,"updated_at": string | null,"zona_nombre": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "reservas_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reservas_creado_por_fkey"
+      columns: ["creado_por"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reservas_departamento_id_fkey"
+      columns: ["departamento_id"]
+isOneToOne: false
+      referencedRelation: "departamentos"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reservas_departamento_id_fkey"
+      columns: ["departamento_id"]
+isOneToOne: false
+      referencedRelation: "vw_departamentos"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Functions: {
@@ -644,6 +730,9 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"encolar_notificaciones_programadas":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "es_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },

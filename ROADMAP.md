@@ -48,10 +48,11 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [x] Usuario cliente de prueba: `scripts/seed-cliente.mjs` (credenciales en `.env.local`).
 
 ### Fase 4 – Pagos y notificaciones (RF12, RF23, RF10)
-- [ ] Integración Webpay Plus (transbank-sdk, ambiente de integración): anticipo, saldo, servicios, multas.
-- [ ] Registro de pagos y liquidación de saldos.
-- [ ] SendGrid: confirmación de reserva, comprobante de pago, alertas.
-- [ ] Cron (Vercel Cron) para correo de transporte 48h antes de llegada y 24h antes de check-out.
+- [x] Webpay Plus con `transbank-sdk` (`src/lib/webpay.ts`): sin `WEBPAY_COMMERCE_CODE`/`WEBPAY_API_KEY` usa integración de Transbank. Flujo: `iniciarPagoWebpay` (anticipo o saldo) → `/pagos/webpay/iniciar/[pagoId]` (auto-submit) → `/pagos/webpay/retorno` (ruta pública, commit con cliente admin, maneja abortos y timeouts).
+- [x] Pagos manuales del staff (`/admin/reservas/[id]`): transferencia/efectivo, reembolsos; listado y filtro de reservas en `/admin/reservas`, cancelación y no-show.
+- [x] Correos con SendGrid REST (`src/lib/email.ts`): sin `SENDGRID_API_KEY` se simulan en desarrollo. Plantillas en `src/lib/notificaciones.ts` (confirmación, comprobante, coordinación de transporte, recordatorio de check-out, cancelación).
+- [x] Cola `notificaciones` + trigger comprobante al aprobar pago + `encolar_notificaciones_programadas()` (48h llegada / 24h check-out). Cron `GET /api/cron/notificaciones` con `CRON_SECRET` (vercel.json, cada hora).
+- [ ] Pendiente al decidir proveedores: rellenar `WEBPAY_*` (producción) y `SENDGRID_API_KEY` + `EMAIL_FROM` en `.env`. No requiere cambios de código.
 
 ### Fase 5 – Operaciones en terreno (RF13, RF14, RF15, RF16, RF22)
 - [ ] Vista tablet de check-in: recepción, cobro de saldo, checklist de estado.
@@ -76,6 +77,6 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Manuales por rol y documentación técnica.
 
 ## Estado
-Fase actual: 4 (Fase 3 cerrada el 08-10-2026). Actualizar esta sección al cerrar cada fase.
+Fase actual: 5 (Fase 4 cerrada el 08-10-2026; Webpay/SendGrid en modo integración/simulado hasta tener credenciales). Actualizar esta sección al cerrar cada fase.
 
 Notas: UI con preset shadcn `b5cReslJ2` (nova, zinc, teal, DM Sans); reaplicar con `npx shadcn@latest apply b5cReslJ2` si se reinstalan componentes. Formularios: `src/components/form/fields.tsx` + `FormState` en `src/lib/form.ts` (conserva valores tras error porque React 19 resetea el form). migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.

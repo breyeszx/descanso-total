@@ -25,7 +25,7 @@ export function DepartamentoForm({ departamento: d, zonas }: Props) {
             options={[{ value: "", label: "Selecciona una zona" }, ...zonas.map((z) => ({ value: String(z.id), label: z.nombre }))]}
             required
           />
-          <InputField name="tarifa_base" label="Tarifa base por noche (CLP)" type="number" min={0} step={1000} state={state} defaultValue={d?.tarifa_base} required />
+          <InputField name="tarifa_base" label="Tarifa base por noche (CLP)" type="number" min={0} state={state} defaultValue={d?.tarifa_base} required />
           <InputField name="direccion" label="Dirección" state={state} defaultValue={d?.direccion} className="sm:col-span-2" required />
           <div className="grid grid-cols-3 gap-3 sm:col-span-2">
             <InputField name="capacidad_max" label="Capacidad" type="number" min={1} state={state} defaultValue={d?.capacidad_max ?? 2} />

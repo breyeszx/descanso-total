@@ -3,15 +3,15 @@ import { notFound } from "next/navigation";
 import { requirePerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { EstadoBadge } from "@/components/estado-badge";
 import { formatCLP, formatDate, formatDateTime, hoyISO } from "@/lib/format";
 import { AcompanantesPanel, CancelarPanel, ModificarPanel } from "./paneles";
+import { PagoPanel } from "./pago-panel";
 
 export const metadata = { title: "Detalle de reserva" };
 
-export default async function ReservaPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ nueva?: string }> }) {
-  const [{ id }, { nueva }] = await Promise.all([params, searchParams]);
+export default async function ReservaPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ nueva?: string; pago?: string }> }) {
+  const [{ id }, { nueva, pago }] = await Promise.all([params, searchParams]);
   await requirePerfil(["cliente"]);
   const reservaId = Number(id);
   const supabase = await createClient();
@@ -82,16 +82,14 @@ export default async function ReservaPage({ params, searchParams }: { params: Pr
             <CardTitle>Pago</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 text-sm">
-            {r.estado === "pendiente_pago" ? (
-              <>
-                <p>Anticipo requerido: <strong>{formatCLP(r.monto_anticipo)}</strong></p>
-                <Button disabled className="w-full">Pagar con Webpay (próximamente)</Button>
-                <p className="text-xs text-muted-foreground">El pago en línea se habilita en la siguiente fase. Mientras tanto, el equipo puede registrar tu anticipo por transferencia.</p>
-              </>
-            ) : (
-              <p className="text-muted-foreground">{pagos?.length ? "Historial de pagos:" : "Sin pagos registrados."}</p>
-            )}
-            {pagos?.map((p) => (
+            <PagoPanel
+              reservaId={reservaId}
+              estado={r.estado}
+              anticipoPendiente={Math.max(0, Number(r.monto_anticipo) - Number(r.monto_pagado))}
+              saldo={Number(r.saldo_pendiente)}
+              resultado={pago}
+            />
+            {pagos?.filter((p) => p.estado !== "anulado").map((p) => (
               <div key={p.id} className="flex items-center justify-between rounded-lg border px-2 py-1.5 text-xs">
                 <span className="capitalize">{p.concepto.replace("_", " ")} · {p.medio}</span>
                 <span>{formatCLP(p.monto)}</span>

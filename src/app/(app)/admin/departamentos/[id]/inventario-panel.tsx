@@ -53,7 +53,7 @@ export function InventarioPanel({ depId, items }: { depId: number; items: Tables
           <InputField name="categoria" label="Categoría" state={state} placeholder="Mobiliario, Electro, Menaje" />
           <InputField name="fecha_adquisicion" label="Fecha adquisición" type="date" state={state} />
           <InputField name="cantidad" label="Cantidad" type="number" min={0} defaultValue={1} state={state} />
-          <InputField name="valor_unitario" label="Valor unitario (CLP)" type="number" min={0} step={1000} state={state} required />
+          <InputField name="valor_unitario" label="Valor unitario (CLP)" type="number" min={0} state={state} required />
           <InputField name="descripcion" label="Descripción" state={state} />
           <div className="flex items-center gap-2 sm:col-span-3">
             <SubmitButton>Agregar ítem</SubmitButton>

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
+import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
 
 const acompananteSchema = z.object({
   nombre: z.string().trim().min(2, "Ingresa el nombre"),
@@ -40,6 +41,7 @@ export async function cancelarReserva(reservaId: number, _: FormState, formData:
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancelar_reserva", { p_reserva: reservaId, p_motivo: motivo || undefined });
   if (error) return { error: dbError(error.message) };
+  await enviarPendientesSilencioso();
   revalidatePath(`/mis-reservas/${reservaId}`);
   revalidatePath("/mis-reservas");
   return { ok: "Reserva cancelada" };
