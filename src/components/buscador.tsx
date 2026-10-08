@@ -12,10 +12,10 @@ type Props = {
 export function Buscador({ zonas, valores = {}, compacto }: Props) {
   const hoy = hoyISO();
   return (
-    <form action="/departamentos" className={compacto ? "grid gap-3 sm:grid-cols-5" : "grid gap-3 rounded-xl border bg-background p-4 shadow-sm sm:grid-cols-5"}>
+    <form action="/departamentos" className={compacto ? "grid gap-3 text-foreground sm:grid-cols-5" : "grid gap-3 rounded-xl border bg-background p-4 text-foreground shadow-sm sm:grid-cols-5"}>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="zona">Zona</Label>
-        <select id="zona" name="zona" defaultValue={valores.zona ?? ""} className="h-9 rounded-lg border border-input bg-background px-3 text-sm">
+        <select id="zona" name="zona" defaultValue={valores.zona ?? ""} className="h-9 rounded-lg border border-input bg-background px-3 text-sm text-foreground">
           <option value="">Todas</option>
           {zonas.map((z) => (
             <option key={z.id} value={z.id}>{z.nombre}</option>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-toggle";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -13,10 +14,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={cn("font-sans", dmSans.variable)}>
+    <html lang="es" className={cn("font-sans", dmSans.variable)} suppressHydrationWarning>
       <body className="font-sans antialiased">
-        {children}
-        <Toaster richColors />
+        <ThemeProvider>
+          {children}
+          <Toaster richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

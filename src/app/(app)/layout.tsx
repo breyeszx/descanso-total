@@ -3,6 +3,7 @@ import { requirePerfil } from "@/lib/auth";
 import { logout } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV: Record<string, { href: string; label: string }[]> = {
   admin: [
@@ -43,6 +44,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </nav>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <span className="hidden text-sm sm:inline">{perfil.nombre}</span>
             <Badge variant="secondary">{perfil.rol}</Badge>
             <form action={logout}>
