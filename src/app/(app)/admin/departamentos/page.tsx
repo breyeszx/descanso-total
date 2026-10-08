@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { requirePerfil } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EstadoBadge } from "@/components/estado-badge";
@@ -8,6 +9,7 @@ import { formatCLP } from "@/lib/format";
 export const metadata = { title: "Departamentos" };
 
 export default async function DepartamentosPage() {
+  await requirePerfil(["admin"]);
   const supabase = await createClient();
   const { data: deps } = await supabase
     .from("vw_departamentos")

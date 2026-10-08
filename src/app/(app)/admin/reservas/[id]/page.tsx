@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EstadoBadge } from "@/components/estado-badge";
+import { Button } from "@/components/ui/button";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
 import { formatearRut } from "@/lib/rut";
 import { PagoManualForm, AccionesReserva } from "./paneles";
@@ -13,13 +14,14 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const reservaId = Number(id);
   const supabase = await createClient();
-  const [{ data: r }, { data: acomp }, { data: servicios }, { data: pagos }, { data: cargos }, { data: notifs }] = await Promise.all([
+  const [{ data: r }, { data: acomp }, { data: servicios }, { data: pagos }, { data: cargos }, { data: notifs }, { data: actas }] = await Promise.all([
     supabase.from("vw_reservas").select("*").eq("id", reservaId).single(),
     supabase.from("acompanantes").select("*").eq("reserva_id", reservaId).order("id"),
     supabase.from("reserva_servicios").select("id, cantidad, subtotal, estado, servicios(nombre)").eq("reserva_id", reservaId),
     supabase.from("pagos").select("*").eq("reserva_id", reservaId).order("id"),
     supabase.from("reserva_cargos").select("id, tipo, descripcion, monto").eq("reserva_id", reservaId),
     supabase.from("notificaciones").select("id, tipo, estado, programada_para, enviada_at, error").eq("reserva_id", reservaId).order("id"),
+    supabase.from("actas").select("id, tipo, fecha, pdf_path, monto_cobrado, firma_conformidad").eq("reserva_id", reservaId).order("fecha"),
   ]);
   if (!r) notFound();
   const activa = r.estado === "pendiente_pago" || r.estado === "confirmada";
@@ -118,6 +120,19 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader><CardTitle>Terreno</CardTitle></CardHeader>
+            <CardContent className="flex flex-col gap-2">
+              {activa && <Button render={<Link href={`/terreno/${reservaId}/check-in`} />}>Hacer check-in</Button>}
+              {r.estado === "en_curso" && <Button render={<Link href={`/terreno/${reservaId}/check-out`} />}>Hacer check-out</Button>}
+              {actas?.map((a) => (
+                <Button key={a.id} variant="outline" render={<a href={`/api/actas/${a.id}`} target="_blank" rel="noopener" />} disabled={!a.pdf_path}>
+                  Acta {a.tipo === "check_in" ? "check-in" : "check-out"} · {formatDateTime(a.fecha)}{a.firma_conformidad ? "" : " (sin conformidad)"}
+                </Button>
+              ))}
+              {!activa && r.estado !== "en_curso" && !actas?.length && <p className="text-sm text-muted-foreground">Sin acciones de terreno.</p>}
+            </CardContent>
+          </Card>
           {(activa || r.estado === "en_curso") && Number(r.saldo_pendiente) > 0 && (
             <PagoManualForm reservaId={reservaId} sugerido={r.estado === "pendiente_pago" ? anticipoPendiente : Number(r.saldo_pendiente)} conceptoSugerido={r.estado === "pendiente_pago" ? "anticipo" : "saldo"} />
           )}

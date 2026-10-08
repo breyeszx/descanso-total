@@ -55,10 +55,11 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Pendiente al decidir proveedores: rellenar `WEBPAY_*` (producción) y `SENDGRID_API_KEY` + `EMAIL_FROM` en `.env`. No requiere cambios de código.
 
 ### Fase 5 – Operaciones en terreno (RF13, RF14, RF15, RF16, RF22)
-- [ ] Vista tablet de check-in: recepción, cobro de saldo, checklist de estado.
-- [ ] Acta de check-in en PDF con firma del cliente (canvas) y almacenamiento en Storage.
-- [ ] Check-out: checklist, registro de daños y multas.
-- [ ] Acta de check-out y liquidación en PDF.
+- [x] `/terreno` (rol funcionario y admin): llegadas pendientes, estadías en curso y búsqueda; tarjetas con botones grandes para tablet.
+- [x] Check-in `/terreno/[id]/check-in`: registro de acompañantes faltantes, checklist del inventario del departamento, cobro del saldo (efectivo/transferencia/webpay POS), firma táctil (canvas → PNG en bucket `firmas`), observaciones. Acta PDF con `@react-pdf/renderer` en bucket `actas`; trigger pasa la reserva a en_curso.
+- [x] Check-out `/terreno/[id]/check-out`: muestra el estado de entrada por ítem, marca daños/faltantes con cargo sugerido (valor de reposición), multa adicional, cobro final; crea `reserva_cargos`, movimientos de inventario (deterioro/baja) y actualiza estado del ítem; acta PDF con liquidación; trigger finaliza la reserva.
+- [x] Descarga de actas `GET /api/actas/[id]` (RLS decide: staff o cliente dueño). Enlaces en "Mis reservas" y en `/admin/reservas/[id]`.
+- [x] Usuario funcionario de prueba: `scripts/seed-funcionario.mjs`. Funcionario accede a `/terreno` y `/admin/reservas`; clientes, departamentos e inventario quedan solo para admin.
 
 ### Fase 6 – Logística y mantenciones (RF09, RF11, RF18)
 - [ ] Vehículos, conductores y asignación de traslados por reserva.
@@ -77,6 +78,6 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Manuales por rol y documentación técnica.
 
 ## Estado
-Fase actual: 5 (Fase 4 cerrada el 08-10-2026; Webpay/SendGrid en modo integración/simulado hasta tener credenciales). Actualizar esta sección al cerrar cada fase.
+Fase actual: 6 (Fase 5 cerrada el 08-10-2026). Webpay/SendGrid siguen en modo integración/simulado hasta tener credenciales. Actualizar esta sección al cerrar cada fase.
 
 Notas: UI con preset shadcn `b5cReslJ2` (nova, zinc, teal, DM Sans); reaplicar con `npx shadcn@latest apply b5cReslJ2` si se reinstalan componentes. Formularios: `src/components/form/fields.tsx` + `FormState` en `src/lib/form.ts` (conserva valores tras error porque React 19 resetea el form). migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.

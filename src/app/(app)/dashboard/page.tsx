@@ -11,6 +11,7 @@ export const metadata = { title: "Panel" };
 export default async function DashboardPage() {
   const perfil = await requirePerfil();
   if (perfil.rol === "cliente") redirect("/mis-reservas");
+  if (perfil.rol === "funcionario") redirect("/terreno");
   if (perfil.rol !== "admin") {
     return (
       <div className="space-y-4">

@@ -4,6 +4,7 @@ import { requirePerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EstadoBadge } from "@/components/estado-badge";
+import { Button } from "@/components/ui/button";
 import { formatCLP, formatDate, formatDateTime, hoyISO } from "@/lib/format";
 import { AcompanantesPanel, CancelarPanel, ModificarPanel } from "./paneles";
 import { PagoPanel } from "./pago-panel";
@@ -15,13 +16,14 @@ export default async function ReservaPage({ params, searchParams }: { params: Pr
   await requirePerfil(["cliente"]);
   const reservaId = Number(id);
   const supabase = await createClient();
-  const [{ data: r }, { data: acomp }, { data: servicios }, { data: pagos }, { data: cargos }, { data: config }] = await Promise.all([
+  const [{ data: r }, { data: acomp }, { data: servicios }, { data: pagos }, { data: cargos }, { data: config }, { data: actas }] = await Promise.all([
     supabase.from("reservas").select("*, departamentos(nombre, direccion, capacidad_max, zonas(nombre))").eq("id", reservaId).single(),
     supabase.from("acompanantes").select("*").eq("reserva_id", reservaId).order("id"),
     supabase.from("reserva_servicios").select("id, cantidad, precio_unitario, subtotal, estado, servicios(nombre)").eq("reserva_id", reservaId),
     supabase.from("pagos").select("id, concepto, medio, monto, estado, pagado_at").eq("reserva_id", reservaId).order("id"),
     supabase.from("reserva_cargos").select("id, tipo, descripcion, monto").eq("reserva_id", reservaId),
     supabase.from("configuracion").select("clave, valor").in("clave", ["dias_cancelacion_sin_costo", "hora_checkin", "hora_checkout"]),
+    supabase.from("actas").select("id, tipo, fecha, pdf_path").eq("reserva_id", reservaId).order("fecha"),
   ]);
   if (!r) notFound();
   const cfg = Object.fromEntries((config ?? []).map((c) => [c.clave, c.valor as string | number]));
@@ -119,6 +121,22 @@ export default async function ReservaPage({ params, searchParams }: { params: Pr
           <CancelarPanel reservaId={reservaId} pagado={Number(r.monto_pagado)} diasCancelacion={diasCancelacion} diasParaLlegada={diasParaLlegada} />
         </div>
       )}
+
+      {actas?.length ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Actas</CardTitle>
+            <CardDescription>Documentos firmados de entrega y devolución del departamento.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {actas.map((a) => (
+              <Button key={a.id} variant="outline" render={<a href={`/api/actas/${a.id}`} target="_blank" rel="noopener" />} disabled={!a.pdf_path}>
+                Acta de {a.tipo === "check_in" ? "check-in" : "check-out"} · {formatDateTime(a.fecha)}
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {r.estado === "cancelada" && (
         <p className="text-sm text-muted-foreground">

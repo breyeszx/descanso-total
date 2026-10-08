@@ -11,10 +11,11 @@ const NAV: Record<string, { href: string; label: string }[]> = {
     { href: "/admin/clientes", label: "Clientes" },
     { href: "/admin/departamentos", label: "Departamentos" },
     { href: "/admin/reservas", label: "Reservas" },
+    { href: "/terreno", label: "Terreno" },
   ],
   funcionario: [
-    { href: "/dashboard", label: "Panel" },
-    { href: "/terreno", label: "Check-in / Check-out" },
+    { href: "/terreno", label: "Terreno" },
+    { href: "/admin/reservas", label: "Reservas" },
   ],
   cliente: [
     { href: "/mis-reservas", label: "Mis reservas" },
