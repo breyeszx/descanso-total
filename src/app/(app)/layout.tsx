@@ -7,10 +7,8 @@ import { Badge } from "@/components/ui/badge";
 const NAV: Record<string, { href: string; label: string }[]> = {
   admin: [
     { href: "/dashboard", label: "Panel" },
-    { href: "/clientes", label: "Clientes" },
+    { href: "/admin/clientes", label: "Clientes" },
     { href: "/admin/departamentos", label: "Departamentos" },
-    { href: "/reservas", label: "Reservas" },
-    { href: "/reportes", label: "Reportes" },
   ],
   funcionario: [
     { href: "/dashboard", label: "Panel" },
@@ -32,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard" className="font-semibold">
               Descanso Total
             </Link>
-            <nav className="hidden gap-4 text-sm md:flex">
+            <nav className="flex gap-4 text-sm">
               {NAV[perfil.rol].map((i) => (
                 <Link
                   key={i.href}

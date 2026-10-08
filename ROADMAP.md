@@ -32,10 +32,11 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [x] Tipos generados en `src/lib/supabase/database.types.ts` (regenerar tras cada migración: `npx supabase gen types typescript --db-url "$SUPABASE_DB_URL" --schema public`).
 
 ### Fase 2 – Administración central (RF02, RF03, RF04, RF05)
-- [ ] CRUD clientes (sin duplicados por RUT/email).
-- [ ] CRUD departamentos con fotos (Supabase Storage), tarifas y servicios.
-- [ ] Inventario valorizado por departamento (altas, bajas, deterioros, reparaciones).
-- [ ] Tablero de estado en tiempo real (Disponible / Reservado / Ocupado / En Mantención).
+- [x] CRUD clientes con búsqueda, validación de RUT chileno y mensajes de duplicado (`/admin/clientes`).
+- [x] CRUD departamentos con fotos en Storage (portada, eliminar), amenidades, activo/inactivo (`/admin/departamentos`).
+- [x] Inventario valorizado por departamento con movimientos (alta, baja, deterioro, reparación => egreso financiero) (`/admin/inventario/[id]`).
+- [x] Dashboard admin con KPIs, tablero de estado en tiempo real y próximas estadías.
+- [ ] Pendiente para fases siguientes: gestión de tarifas por temporada y catálogo de servicios desde el panel (hoy se editan en BD).
 
 ### Fase 3 – Portal de clientes y reservas (RF06, RF07, RF08, RF11, RF17)
 - [ ] Home y catálogo público con búsqueda por zona y fechas.
@@ -74,6 +75,6 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Manuales por rol y documentación técnica.
 
 ## Estado
-Fase actual: 2 (Fases 0 y 1 cerradas el 29-09-2026). Actualizar esta sección al cerrar cada fase.
+Fase actual: 3 (Fase 2 cerrada el 08-10-2026). Actualizar esta sección al cerrar cada fase.
 
-Notas: migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.
+Notas: UI con preset shadcn `b5cReslJ2` (nova, zinc, teal, DM Sans); reaplicar con `npx shadcn@latest apply b5cReslJ2` si se reinstalan componentes. Formularios: `src/components/form/fields.tsx` + `FormState` en `src/lib/form.ts` (conserva valores tras error porque React 19 resetea el form). migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.
