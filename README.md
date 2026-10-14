@@ -27,7 +27,7 @@ Tras cada migración regenerar tipos: `npx supabase gen types typescript --db-ur
    - `TZ` = `America/Santiago` (fechas y horas de traslados)
    - Opcionales: `WEBPAY_COMMERCE_CODE` + `WEBPAY_API_KEY` (sin ellas: ambiente de integración de Transbank), `SENDGRID_API_KEY` + `EMAIL_FROM` + `EMAIL_FROM_NAME` (sin ellas: correos simulados, en producción se marcan como fallidos).
 3. En Supabase > Authentication > URL Configuration: agregar la URL de Vercel como Site URL y en Redirect URLs.
-4. El cron `GET /api/cron/notificaciones` corre cada hora (avisos de transporte 48 h y check-out 24 h, y envío de la cola).
+4. El cron `GET /api/cron/notificaciones` corre una vez al día a las 12:00 UTC (09:00 Chile; el plan Hobby de Vercel solo permite crons diarios). Encola avisos de transporte 48 h y check-out 24 h, y envío de la cola).
 
 ## Roles y manual breve
 

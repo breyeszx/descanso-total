@@ -51,7 +51,7 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [x] Webpay Plus con `transbank-sdk` (`src/lib/webpay.ts`): sin `WEBPAY_COMMERCE_CODE`/`WEBPAY_API_KEY` usa integración de Transbank. Flujo: `iniciarPagoWebpay` (anticipo o saldo) → `/pagos/webpay/iniciar/[pagoId]` (auto-submit) → `/pagos/webpay/retorno` (ruta pública, commit con cliente admin, maneja abortos y timeouts).
 - [x] Pagos manuales del staff (`/admin/reservas/[id]`): transferencia/efectivo, reembolsos; listado y filtro de reservas en `/admin/reservas`, cancelación y no-show.
 - [x] Correos con SendGrid REST (`src/lib/email.ts`): sin `SENDGRID_API_KEY` se simulan en desarrollo. Plantillas en `src/lib/notificaciones.ts` (confirmación, comprobante, coordinación de transporte, recordatorio de check-out, cancelación).
-- [x] Cola `notificaciones` + trigger comprobante al aprobar pago + `encolar_notificaciones_programadas()` (48h llegada / 24h check-out). Cron `GET /api/cron/notificaciones` con `CRON_SECRET` (vercel.json, cada hora).
+- [x] Cola `notificaciones` + trigger comprobante al aprobar pago + `encolar_notificaciones_programadas()` (48h llegada / 24h check-out). Cron `GET /api/cron/notificaciones` con `CRON_SECRET` (vercel.json, diario a las 12:00 UTC por límite del plan Hobby).
 - [ ] Pendiente al decidir proveedores: rellenar `WEBPAY_*` (producción) y `SENDGRID_API_KEY` + `EMAIL_FROM` en `.env`. No requiere cambios de código.
 
 ### Fase 5 – Operaciones en terreno (RF13, RF14, RF15, RF16, RF22)
