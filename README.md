@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Descanso Total
 
-## Getting Started
+Sistema web de gestión de arriendos turísticos, servicios y operaciones. Next.js 16 + Supabase. Ver `ROADMAP.md` para el estado por fase y `CLAUDE.md` para convenciones.
 
-First, run the development server:
+## Desarrollo local
 
 ```bash
+npm install
+cp .env.example .env.local   # completar claves de Supabase
+bash scripts/migrate.sh      # aplica supabase/migrations en orden (requiere psql y SUPABASE_DB_URL)
+node scripts/seed-admin.mjs  # crea el admin; también seed-cliente.mjs y seed-funcionario.mjs
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Pruebas: `npm test` (unitarias con node:test) y `bash scripts/test-db.sh` (reglas de negocio contra la base, en transacción revertida).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Tras cada migración regenerar tipos: `npx supabase gen types typescript --db-url "$SUPABASE_DB_URL" --schema public > src/lib/supabase/database.types.ts`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Despliegue en Vercel
 
-## Learn More
+1. Importar el repositorio en Vercel (framework Next.js, sin configuración extra).
+2. Variables de entorno (Production y Preview):
+   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` (secreta; usada por Webpay, cron, correos y actas)
+   - `NEXT_PUBLIC_APP_URL` = URL pública del sitio (la usa Webpay para el retorno y los correos para los enlaces)
+   - `CRON_SECRET` = cadena aleatoria larga (Vercel la envía al cron de `vercel.json`)
+   - `TZ` = `America/Santiago` (fechas y horas de traslados)
+   - Opcionales: `WEBPAY_COMMERCE_CODE` + `WEBPAY_API_KEY` (sin ellas: ambiente de integración de Transbank), `SENDGRID_API_KEY` + `EMAIL_FROM` + `EMAIL_FROM_NAME` (sin ellas: correos simulados, en producción se marcan como fallidos).
+3. En Supabase > Authentication > URL Configuration: agregar la URL de Vercel como Site URL y en Redirect URLs.
+4. El cron `GET /api/cron/notificaciones` corre cada hora (avisos de transporte 48 h y check-out 24 h, y envío de la cola).
 
-To learn more about Next.js, take a look at the following resources:
+## Roles y manual breve
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Cliente**: busca por zona y fechas, reserva con anticipo (Webpay), registra acompañantes, agrega servicios, reprograma o cancela según plazo, descarga sus actas. Todo en "Mis reservas".
+- **Funcionario** (`/terreno`): ve llegadas y estadías del día, hace check-in (acompañantes, checklist, cobro de saldo, firma) y check-out (daños, multas, cobro final). Cada acto emite un acta PDF. También consulta reservas y registra pagos.
+- **Administrador** (`/admin/...`): clientes, departamentos con fotos e inventario, reservas y pagos manuales, traslados, flota, servicios, mantenciones, finanzas y reportes con exportación PDF.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Credenciales de prueba: ver variables `SEED_*` en `.env.local` tras correr los seeds.
