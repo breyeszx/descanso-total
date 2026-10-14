@@ -41,6 +41,7 @@ export function dbError(message: string): string {
   if (message.includes("clientes_email_idx")) return "Ya existe un cliente con ese correo.";
   if (message.includes("departamentos_codigo_key")) return "Ya existe un departamento con ese código.";
   if (message.includes("row-level security")) return "No tienes permisos para realizar esta acción.";
-  if (message.startsWith("P0001") || /mantenci[oó]n|reservas activas/i.test(message)) return message.replace(/^P0001:\s*/, "");
+  // Mensajes de negocio lanzados por triggers/RPC (raise exception ... errcode P0001) se muestran tal cual
+  if (/mantenci[oó]n|reservas activas|disponible|anticipaci[oó]n|permiso|estado actual|hu[eé]spedes|fecha/i.test(message)) return message.replace(/^P0001:\s*/, "");
   return "Ocurrió un error al guardar. Intenta nuevamente.";
 }

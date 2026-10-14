@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
 import { formatearRut } from "@/lib/rut";
 import { PagoManualForm, AccionesReserva } from "./paneles";
+import { LogisticaPanel } from "./logistica";
 
 export const metadata = { title: "Reserva" };
 
@@ -14,7 +15,7 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const reservaId = Number(id);
   const supabase = await createClient();
-  const [{ data: r }, { data: acomp }, { data: servicios }, { data: pagos }, { data: cargos }, { data: notifs }, { data: actas }] = await Promise.all([
+  const [{ data: r }, { data: acomp }, { data: servicios }, { data: pagos }, { data: cargos }, { data: notifs }, { data: actas }, { data: transportes }, { data: vehiculos }, { data: conductores }, { data: catalogo }] = await Promise.all([
     supabase.from("vw_reservas").select("*").eq("id", reservaId).single(),
     supabase.from("acompanantes").select("*").eq("reserva_id", reservaId).order("id"),
     supabase.from("reserva_servicios").select("id, cantidad, subtotal, estado, servicios(nombre)").eq("reserva_id", reservaId),
@@ -22,6 +23,10 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
     supabase.from("reserva_cargos").select("id, tipo, descripcion, monto").eq("reserva_id", reservaId),
     supabase.from("notificaciones").select("id, tipo, estado, programada_para, enviada_at, error").eq("reserva_id", reservaId).order("id"),
     supabase.from("actas").select("id, tipo, fecha, pdf_path, monto_cobrado, firma_conformidad").eq("reserva_id", reservaId).order("fecha"),
+    supabase.from("transportes").select("id, tipo, fecha_hora, origen, destino, pasajeros, estado, vehiculos(patente), conductores(nombre, telefono)").eq("reserva_id", reservaId).order("fecha_hora"),
+    supabase.from("vehiculos").select("id, patente, capacidad").eq("activo", true).order("patente"),
+    supabase.from("conductores").select("id, nombre").eq("activo", true).order("nombre"),
+    supabase.from("servicios").select("id, nombre, tipo, precio").eq("activo", true).order("tipo").order("nombre"),
   ]);
   if (!r) notFound();
   const activa = r.estado === "pendiente_pago" || r.estado === "confirmada";
@@ -94,6 +99,15 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
               ))}
             </CardContent>
           </Card>
+
+          <LogisticaPanel
+            reservaId={reservaId}
+            editable={activa || r.estado === "en_curso"}
+            transportes={transportes ?? []}
+            vehiculos={vehiculos ?? []}
+            conductores={conductores ?? []}
+            servicios={(catalogo ?? []).map((s) => ({ ...s, precio: Number(s.precio) }))}
+          />
 
           <Card>
             <CardHeader>

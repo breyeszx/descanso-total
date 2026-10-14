@@ -11,6 +11,9 @@ const NAV: Record<string, { href: string; label: string }[]> = {
     { href: "/admin/clientes", label: "Clientes" },
     { href: "/admin/departamentos", label: "Departamentos" },
     { href: "/admin/reservas", label: "Reservas" },
+    { href: "/admin/mantenciones", label: "Mantenciones" },
+    { href: "/admin/servicios", label: "Servicios" },
+    { href: "/admin/flota", label: "Flota" },
     { href: "/terreno", label: "Terreno" },
   ],
   funcionario: [
