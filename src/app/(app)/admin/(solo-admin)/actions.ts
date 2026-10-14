@@ -102,3 +102,24 @@ export async function cambiarEstadoMantencion(id: number, estado: "programada" |
   revalidatePath("/admin/mantenciones");
   revalidatePath("/dashboard");
 }
+
+const movimientoSchema = z.object({
+  tipo: z.enum(["ingreso", "egreso"]),
+  categoria: z.enum(["arriendo", "servicio_extra", "cargo", "reembolso", "reparacion", "mantencion", "dividendo", "contribucion", "transporte", "otro"]),
+  monto: z.coerce.number().int().positive("Monto mayor a 0"),
+  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
+  departamento_id: z.coerce.number().int().optional(),
+  descripcion: z.string().trim().optional(),
+});
+
+export async function registrarMovimiento(_: FormState, formData: FormData): Promise<FormState> {
+  const perfil = await requirePerfil(["admin"]);
+  const parsed = movimientoSchema.safeParse(formToObject(formData));
+  if (!parsed.success) return zodError(parsed.error, formData);
+  const supabase = await createClient();
+  const { error } = await supabase.from("movimientos_financieros").insert({ ...parsed.data, departamento_id: parsed.data.departamento_id ?? null, descripcion: parsed.data.descripcion ?? null, registrado_por: perfil.id });
+  if (error) return errorState(dbError(error.message), formData);
+  revalidatePath("/admin/finanzas");
+  revalidatePath("/dashboard");
+  return { ok: "Movimiento registrado" };
+}

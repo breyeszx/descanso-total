@@ -748,8 +748,26 @@ isOneToOne: false
 "modificar_reserva":
 { Args: { "p_fin": string,"p_huespedes"?: number,"p_inicio": string,"p_reserva": number }; Returns: undefined
                            },
+"noches_ocupadas":
+{ Args: { "p_departamento": number,"p_desde": string,"p_hasta": string }; Returns: number
+                           },
 "recalcular_reserva":
 { Args: { "p_reserva": number }; Returns: undefined
+                           },
+"reporte_departamentos":
+{ Args: { "p_desde": string,"p_hasta": string }; Returns: {
+              "codigo": string,"departamento": string,"departamento_id": number,"egresos": number,"ingresos": number,"noches": number,"ocupacion": number,"reservas": number,"zona": string
+            }[]
+                           },
+"reporte_mensual":
+{ Args: { "p_anio": number }; Returns: {
+              "egresos": number,"ingresos": number,"mes": number,"noches": number,"ocupacion": number
+            }[]
+                           },
+"reporte_servicios":
+{ Args: { "p_desde": string,"p_hasta": string }; Returns: {
+              "cantidad": number,"monto": number,"servicio": string,"tipo": Database["public"]['Enums']["tipo_servicio"]
+            }[]
                            },
 "rol_actual":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["rol_usuario"]

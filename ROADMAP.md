@@ -68,9 +68,10 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - shortcut: la hora de los traslados se interpreta en la zona del servidor; fijar `TZ=America/Santiago` en el hosting.
 
 ### Fase 7 – Finanzas y reportería (RF19, RF20, RF21, RF22)
-- [ ] Ingresos y egresos (arriendos, servicios, reparaciones, dividendos, contribuciones).
-- [ ] Informes diarios/semanales/mensuales/anuales por departamento y zona, exportables a PDF.
-- [ ] Dashboard con KPIs y estadísticas de ocupación, temporadas y rentabilidad.
+- [x] `/admin/finanzas`: movimientos con filtro por fechas y tipo, totales del período, registro manual (dividendos, contribuciones, otros). Arriendos, servicios, cargos, reparaciones y mantenciones se registran solos por triggers.
+- [x] `/admin/reportes`: período día/semana/mes/año/rango; KPIs (ingresos, egresos, resultado, reservas, ocupación), tablas por zona y por departamento, servicios más contratados, temporadas con barras mensuales. Funciones SQL `reporte_departamentos`, `reporte_servicios`, `reporte_mensual`, `noches_ocupadas` (migración 0006).
+- [x] Exportación PDF `GET /api/reportes?periodo&fecha&hasta` (react-pdf).
+- Omitido: gráficos con librería (se usaron barras CSS sin dependencias).
 
 ### Fase 8 – QA, seguridad y despliegue (RNF06-08, RNF11, RNF12, RNF13)
 - [ ] Tests unitarios de reglas de negocio y e2e de reserva, pago y check-in.
@@ -79,6 +80,6 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [ ] Manuales por rol y documentación técnica.
 
 ## Estado
-Fase actual: 7 (Fase 6 cerrada el 14-10-2026). Webpay/SendGrid siguen en modo integración/simulado hasta tener credenciales. Actualizar esta sección al cerrar cada fase.
+Fase actual: 8 (Fase 7 cerrada el 14-10-2026). Webpay/SendGrid siguen en modo integración/simulado hasta tener credenciales. Actualizar esta sección al cerrar cada fase.
 
 Notas: UI con preset shadcn `b5cReslJ2` (nova, zinc, teal, DM Sans); reaplicar con `npx shadcn@latest apply b5cReslJ2` si se reinstalan componentes. Formularios: `src/components/form/fields.tsx` + `FormState` en `src/lib/form.ts` (conserva valores tras error porque React 19 resetea el form). migraciones se aplican con `bash scripts/migrate.sh` (psql 18 local + SUPABASE_DB_URL, pooler aws-0-us-west-2). shadcn usa estilo base-nova (Base UI): el Button no acepta `asChild`, usar `render={<Link ... />}`. Next 16 usa `src/proxy.ts` en vez de middleware.
