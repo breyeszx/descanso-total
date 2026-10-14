@@ -74,10 +74,11 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - Omitido: gráficos con librería (se usaron barras CSS sin dependencias).
 
 ### Fase 8 – QA, seguridad y despliegue (RNF06-08, RNF11, RNF12, RNF13)
-- [ ] Tests unitarios de reglas de negocio y e2e de reserva, pago y check-in.
-- [ ] Revisión de RLS, validaciones (zod) en cliente y servidor, mensajes de error.
-- [ ] Rendimiento (índices, caché), respaldos Supabase, deploy a Vercel.
-- [ ] Manuales por rol y documentación técnica.
+- [x] Pruebas: `npm test` (RUT, períodos, mensajes de error) y `bash scripts/test-db.sh` (arriendo/anticipo, anti-overbooking, bloqueo por mantención, confirmación por pago, disponibilidad). Flujos de reserva, Webpay, check-in/out verificados manualmente en navegador en cada fase.
+- [x] Auditoría BD: RLS en todas las tablas, funciones definer con search_path fijo, vistas security_invoker; se revocó a anon/authenticated `encolar_notificaciones_programadas` y `recalcular_reserva` (migración 0007).
+- [x] Índices en FKs consultadas (migración 0007). Respaldos: Supabase hace backups diarios automáticos en el plan del proyecto.
+- [x] README con pasos de despliegue en Vercel, variables de entorno y manual breve por rol.
+- [ ] Deploy a Vercel: importar el repo, cargar variables (ver README) y agregar la URL en Supabase Auth.
 
 ## Estado
 Fase actual: 8 (Fase 7 cerrada el 14-10-2026). Webpay/SendGrid siguen en modo integración/simulado hasta tener credenciales. Actualizar esta sección al cerrar cada fase.
