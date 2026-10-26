@@ -55,7 +55,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <span className="hidden text-sm sm:inline">{perfil.nombre}</span>
             <Badge variant="secondary">{perfil.rol}</Badge>
             <form action={logout}>
-              <Button variant="outline" size="sm">
+              <Button type="submit" variant="outline" size="sm">
                 Salir
               </Button>
             </form>
