@@ -1,15 +1,20 @@
 // Sube las fotos de muestra de seed/fotos al bucket "departamentos" y las registra en departamento_fotos.
-// Requiere NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en .env.local. Es idempotente: omite las fotos ya subidas.
+// Requiere NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY en .env.local o en el entorno. Es idempotente: omite las fotos ya subidas.
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-const env = Object.fromEntries(
-  readFileSync(".env.local", "utf8").split(/\r?\n/).filter((l) => l.includes("=") && !l.startsWith("#"))
-    .map((l) => { const i = l.indexOf("="); return [l.slice(0, i).trim(), l.slice(i + 1).trim()]; })
-);
+// Lee .env.local si existe; si no (p. ej. entorno en la nube), usa las variables de entorno del proceso.
+const env = { ...process.env };
+if (existsSync(".env.local")) {
+  for (const l of readFileSync(".env.local", "utf8").split(/\r?\n/)) {
+    if (!l.includes("=") || l.startsWith("#")) continue;
+    const i = l.indexOf("=");
+    env[l.slice(0, i).trim()] = l.slice(i + 1).trim();
+  }
+}
 if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en .env.local");
+  console.error("Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY (en .env.local o como variables de entorno)");
   process.exit(1);
 }
 const sb = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
