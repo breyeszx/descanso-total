@@ -1,0 +1,245 @@
+{
+  "nota": "Fotos de muestra para los departamentos de prueba. Descargadas de Pexels (licencia libre, sin atribución obligatoria) a 1600 px de ancho. La primera de cada departamento es la portada.",
+  "fotos": [
+    {
+      "codigo": "DT-01",
+      "orden": 0,
+      "archivo": "DT-01/1-38798693.jpg",
+      "descripcion": "Edificios de la costa de Viña del Mar vistos desde el aire",
+      "fuente": "https://www.pexels.com/photo/38798693/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-01",
+      "orden": 1,
+      "archivo": "DT-01/2-14746039.jpg",
+      "descripcion": "Terraza con vista al mar",
+      "fuente": "https://www.pexels.com/photo/14746039/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-01",
+      "orden": 2,
+      "archivo": "DT-01/3-6510974.jpg",
+      "descripcion": "Living con sofá seccional blanco y ventanales",
+      "fuente": "https://www.pexels.com/photo/6510974/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-02",
+      "orden": 0,
+      "archivo": "DT-02/1-23885794.jpg",
+      "descripcion": "Costanera de Viña del Mar con playa y edificios",
+      "fuente": "https://www.pexels.com/photo/23885794/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-02",
+      "orden": 1,
+      "archivo": "DT-02/2-6588599.jpg",
+      "descripcion": "Living de departamento moderno",
+      "fuente": "https://www.pexels.com/photo/6588599/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-02",
+      "orden": 2,
+      "archivo": "DT-02/3-6186819.jpg",
+      "descripcion": "Dormitorio luminoso con cama blanca",
+      "fuente": "https://www.pexels.com/photo/6186819/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-03",
+      "orden": 0,
+      "archivo": "DT-03/1-30176517.jpg",
+      "descripcion": "Faro Monumental de La Serena",
+      "fuente": "https://www.pexels.com/photo/30176517/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-03",
+      "orden": 1,
+      "archivo": "DT-03/2-7147293.jpg",
+      "descripcion": "Living con sofá y televisor",
+      "fuente": "https://www.pexels.com/photo/7147293/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-03",
+      "orden": 2,
+      "archivo": "DT-03/3-8266829.jpg",
+      "descripcion": "Dormitorio blanco contemporáneo",
+      "fuente": "https://www.pexels.com/photo/8266829/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-04",
+      "orden": 0,
+      "archivo": "DT-04/1-5412038.jpg",
+      "descripcion": "Bahía de Coquimbo con botes y cerros",
+      "fuente": "https://www.pexels.com/photo/5412038/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-04",
+      "orden": 1,
+      "archivo": "DT-04/2-6775268.jpg",
+      "descripcion": "Terraza con vista al océano",
+      "fuente": "https://www.pexels.com/photo/6775268/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-04",
+      "orden": 2,
+      "archivo": "DT-04/3-5825536.jpg",
+      "descripcion": "Sofá junto a la ventana",
+      "fuente": "https://www.pexels.com/photo/5825536/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-05",
+      "orden": 0,
+      "archivo": "DT-05/1-25525995.jpg",
+      "descripcion": "Volcán Villarrica con nieve y fumarola",
+      "fuente": "https://www.pexels.com/photo/25525995/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-05",
+      "orden": 1,
+      "archivo": "DT-05/2-10560268.jpg",
+      "descripcion": "Estufa a leña en cabaña de madera",
+      "fuente": "https://www.pexels.com/photo/10560268/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-05",
+      "orden": 2,
+      "archivo": "DT-05/3-14465274.jpg",
+      "descripcion": "Dormitorio de madera con camas blancas",
+      "fuente": "https://www.pexels.com/photo/14465274/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-06",
+      "orden": 0,
+      "archivo": "DT-06/1-18161221.jpg",
+      "descripcion": "Volcán Villarrica sobre el lago",
+      "fuente": "https://www.pexels.com/photo/18161221/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-06",
+      "orden": 1,
+      "archivo": "DT-06/2-6914713.jpg",
+      "descripcion": "Living acogedor con plantas junto a la ventana",
+      "fuente": "https://www.pexels.com/photo/6914713/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-06",
+      "orden": 2,
+      "archivo": "DT-06/3-3030684.jpg",
+      "descripcion": "Cama con ropa blanca",
+      "fuente": "https://www.pexels.com/photo/3030684/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-07",
+      "orden": 0,
+      "archivo": "DT-07/1-13557952.jpg",
+      "descripcion": "Volcán Osorno desde el lago Llanquihue",
+      "fuente": "https://www.pexels.com/photo/13557952/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-07",
+      "orden": 1,
+      "archivo": "DT-07/2-19227215.jpg",
+      "descripcion": "Living con chimenea",
+      "fuente": "https://www.pexels.com/photo/19227215/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-07",
+      "orden": 2,
+      "archivo": "DT-07/3-6970077.jpg",
+      "descripcion": "Living moderno con lámpara de pie",
+      "fuente": "https://www.pexels.com/photo/6970077/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-08",
+      "orden": 0,
+      "archivo": "DT-08/1-4273242.jpg",
+      "descripcion": "Muelle de madera en Puerto Varas",
+      "fuente": "https://www.pexels.com/photo/4273242/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-08",
+      "orden": 1,
+      "archivo": "DT-08/2-6527029.jpg",
+      "descripcion": "Departamento moderno amoblado",
+      "fuente": "https://www.pexels.com/photo/6527029/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-08",
+      "orden": 2,
+      "archivo": "DT-08/3-3682240.jpg",
+      "descripcion": "Almohadas blancas sobre la cama",
+      "fuente": "https://www.pexels.com/photo/3682240/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-09",
+      "orden": 0,
+      "archivo": "DT-09/1-16551705.jpg",
+      "descripcion": "Calle de San Pedro de Atacama con arquitectura de adobe",
+      "fuente": "https://www.pexels.com/photo/16551705/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-09",
+      "orden": 1,
+      "archivo": "DT-09/2-8484841.jpg",
+      "descripcion": "Piscina en patio interior",
+      "fuente": "https://www.pexels.com/photo/8484841/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-09",
+      "orden": 2,
+      "archivo": "DT-09/3-7060811.jpg",
+      "descripcion": "Living acogedor con sillón y sofá",
+      "fuente": "https://www.pexels.com/photo/7060811/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-10",
+      "orden": 0,
+      "archivo": "DT-10/1-8150265.jpg",
+      "descripcion": "Vía Láctea sobre el desierto de Atacama",
+      "fuente": "https://www.pexels.com/photo/8150265/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-10",
+      "orden": 1,
+      "archivo": "DT-10/2-7204225.jpg",
+      "descripcion": "Calle tradicional de San Pedro de Atacama",
+      "fuente": "https://www.pexels.com/photo/7204225/",
+      "licencia": "Pexels License"
+    },
+    {
+      "codigo": "DT-10",
+      "orden": 2,
+      "archivo": "DT-10/3-4180974.jpg",
+      "descripcion": "Departamento moderno con ventanales",
+      "fuente": "https://www.pexels.com/photo/4180974/",
+      "licencia": "Pexels License"
+    }
+  ]
+}

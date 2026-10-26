@@ -9,6 +9,7 @@ npm install
 cp .env.example .env.local   # completar claves de Supabase
 bash scripts/migrate.sh      # aplica supabase/migrations en orden (requiere psql y SUPABASE_DB_URL)
 node scripts/seed-admin.mjs  # crea el admin; también seed-cliente.mjs y seed-funcionario.mjs
+node scripts/seed-fotos.mjs  # sube las fotos de muestra de seed/fotos al bucket "departamentos"
 npm run dev
 ```
 
