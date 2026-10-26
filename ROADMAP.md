@@ -34,6 +34,7 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 ### Fase 2 – Administración central (RF02, RF03, RF04, RF05)
 - [x] CRUD clientes con búsqueda, validación de RUT chileno y mensajes de duplicado (`/admin/clientes`).
 - [x] CRUD departamentos con fotos en Storage (portada, eliminar), amenidades, activo/inactivo (`/admin/departamentos`).
+- [x] Fotos de muestra para los 10 departamentos (3 por depto, Pexels, licencia libre) en `seed/fotos/` con `manifest.json` de créditos; se cargan con `node scripts/seed-fotos.mjs`.
 - [x] Inventario valorizado por departamento con movimientos (alta, baja, deterioro, reparación => egreso financiero) (`/admin/inventario/[id]`).
 - [x] Dashboard admin con KPIs, tablero de estado en tiempo real y próximas estadías.
 - [ ] Pendiente para fases siguientes: gestión de tarifas por temporada y catálogo de servicios desde el panel (hoy se editan en BD).
