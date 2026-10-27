@@ -1,16 +1,13 @@
-import Link from "next/link";
 import { requirePerfil } from "@/lib/auth";
 import { logout } from "@/app/(auth)/actions";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { AppNav, type NavItem } from "@/components/app-nav";
 
-const NAV: Record<string, { href: string; label: string }[]> = {
+const NAV: Record<string, NavItem[]> = {
   admin: [
     { href: "/dashboard", label: "Panel" },
+    { href: "/admin/reservas", label: "Reservas" },
     { href: "/admin/clientes", label: "Clientes" },
     { href: "/admin/departamentos", label: "Departamentos" },
-    { href: "/admin/reservas", label: "Reservas" },
     { href: "/admin/mantenciones", label: "Mantenciones" },
     { href: "/admin/servicios", label: "Servicios" },
     { href: "/admin/flota", label: "Flota" },
@@ -30,39 +27,11 @@ const NAV: Record<string, { href: string; label: string }[]> = {
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const perfil = await requirePerfil();
+  const usuario = { nombre: perfil.nombre, email: perfil.email, rol: perfil.rol, inicio: perfil.rol === "cliente" ? "/" : "/dashboard" };
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex items-center gap-6">
-            <Link href={perfil.rol === "cliente" ? "/" : "/dashboard"} className="font-semibold">
-              Descanso Total
-            </Link>
-            <nav className="flex gap-4 text-sm">
-              {NAV[perfil.rol].map((i) => (
-                <Link
-                  key={i.href}
-                  href={i.href}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  {i.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <span className="hidden text-sm sm:inline">{perfil.nombre}</span>
-            <Badge variant="secondary">{perfil.rol}</Badge>
-            <form action={logout}>
-              <Button type="submit" variant="outline" size="sm">
-                Salir
-              </Button>
-            </form>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl p-4">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <AppNav items={NAV[perfil.rol]} usuario={usuario} logout={logout} />
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
     </div>
   );
 }
