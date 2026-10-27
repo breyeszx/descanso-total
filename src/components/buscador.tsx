@@ -19,17 +19,17 @@ export function Buscador({ zonas, valores = {}, compacto }: Props) {
       className={cn(
         "grid gap-3 text-foreground",
         compacto
-          ? "rounded-xl border bg-card p-3 sm:grid-cols-[1.4fr_1fr_1fr_.8fr_auto] sm:items-end"
-          : "rounded-2xl border bg-card p-4 shadow-xs sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_.8fr]",
+          ? "rounded-xl border bg-card p-3 sm:grid-cols-2 sm:items-end lg:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(0,1fr))_minmax(0,.8fr)_auto]"
+          : "rounded-2xl border bg-card p-4 shadow-xs sm:grid-cols-2",
       )}
     >
-      <div className="flex flex-col gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5">
         <Label htmlFor="zona">Zona</Label>
         <select
           id="zona"
           name="zona"
           defaultValue={valores.zona ?? ""}
-          className="h-10 rounded-lg border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <option value="">Todas las zonas</option>
           {zonas.map((z) => (
@@ -37,19 +37,19 @@ export function Buscador({ zonas, valores = {}, compacto }: Props) {
           ))}
         </select>
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5">
         <Label htmlFor="inicio">Llegada</Label>
-        <Input id="inicio" name="inicio" type="date" min={hoy} defaultValue={valores.inicio} className="h-10" />
+        <Input id="inicio" name="inicio" type="date" min={hoy} defaultValue={valores.inicio} className="h-10 min-w-0" />
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5">
         <Label htmlFor="fin">Salida</Label>
-        <Input id="fin" name="fin" type="date" min={hoy} defaultValue={valores.fin} className="h-10" />
+        <Input id="fin" name="fin" type="date" min={hoy} defaultValue={valores.fin} className="h-10 min-w-0" />
       </div>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5">
         <Label htmlFor="huespedes">Huéspedes</Label>
-        <Input id="huespedes" name="huespedes" type="number" min={1} max={12} defaultValue={valores.huespedes ?? "2"} className="h-10" />
+        <Input id="huespedes" name="huespedes" type="number" min={1} max={12} defaultValue={valores.huespedes ?? "2"} className="h-10 min-w-0" />
       </div>
-      <Button type="submit" size="lg" className={cn("h-11 text-[15px]", compacto ? "sm:h-10" : "sm:col-span-2 lg:col-span-4")}>
+      <Button type="submit" size="lg" className={cn("h-11 text-[15px]", compacto ? "sm:col-span-2 lg:col-span-1 lg:h-10" : "sm:col-span-2")}>
         Buscar disponibilidad
       </Button>
     </form>
