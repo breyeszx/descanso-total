@@ -36,32 +36,36 @@ export default async function DepartamentoPublicoPage({ params, searchParams }: 
     if (data) cotizacion = { noches: data.noches!, monto_arriendo: Number(data.monto_arriendo), monto_anticipo: Number(data.monto_anticipo), disponible: !!data.disponible };
   }
 
+  const plural = (n: number | null, uno: string, varios: string) => `${n ?? 0} ${n === 1 ? uno : varios}`;
+
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm text-muted-foreground">
-          <Link href="/departamentos" className="hover:underline">Departamentos</Link> / {dep.zona_nombre}
-        </p>
-        <h1 className="text-2xl font-semibold sm:text-3xl">{dep.nombre}</h1>
-        <p className="text-sm text-muted-foreground">{dep.direccion}</p>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:py-8">
+      <div className="flex flex-col gap-1">
+        <nav aria-label="Ruta" className="text-sm text-muted-foreground">
+          <Link href="/departamentos" className="hover:text-foreground">Departamentos</Link>
+          <span className="mx-1.5">/</span>
+          <Link href={`/departamentos?zona=${dep.zona_id}`} className="hover:text-foreground">{dep.zona_nombre}</Link>
+        </nav>
+        <h1 className="text-3xl font-semibold sm:text-4xl">{dep.nombre}</h1>
+        <p className="text-muted-foreground">{dep.direccion}</p>
       </div>
 
       {urls.length > 0 && (
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-2 overflow-hidden rounded-2xl sm:grid-cols-3">
           {urls.slice(0, 3).map((u, i) => (
-            <div key={u} className={i === 0 ? "relative aspect-4/3 sm:col-span-2 sm:row-span-2" : "relative aspect-4/3"}>
-              <Image src={u} alt={dep.nombre ?? ""} fill unoptimized className="rounded-xl object-cover" />
+            <div key={u} className={i === 0 ? "relative aspect-4/3 bg-secondary sm:col-span-2 sm:row-span-2 sm:aspect-auto" : "relative hidden aspect-4/3 bg-secondary sm:block"}>
+              <Image src={u} alt={`${dep.nombre}, foto ${i + 1}`} fill unoptimized sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover" />
             </div>
           ))}
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="flex flex-col gap-6 lg:col-span-2">
-          <p className="text-sm text-muted-foreground">
-            {dep.capacidad_max} huéspedes · {dep.dormitorios} dormitorio(s) · {dep.banos} baño(s)
+      <div className="grid gap-8 lg:grid-cols-3 lg:gap-10">
+        <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
+          <p className="text-[15px] text-muted-foreground">
+            {plural(dep.capacidad_max, "huésped", "huéspedes")}, {plural(dep.dormitorios, "dormitorio", "dormitorios")}, {plural(dep.banos, "baño", "baños")}
           </p>
-          <p className="leading-relaxed">{dep.descripcion ?? "Departamento completamente equipado."}</p>
+          <p className="max-w-[65ch] text-[17px] leading-relaxed">{dep.descripcion ?? "Departamento completamente equipado."}</p>
           {dep.amenidades?.length ? (
             <div className="flex flex-wrap gap-1.5">
               {dep.amenidades.map((a) => (
@@ -71,10 +75,10 @@ export default async function DepartamentoPublicoPage({ params, searchParams }: 
           ) : null}
           {servicios?.length ? (
             <div>
-              <h2 className="mb-2 font-semibold">Servicios que puedes sumar a tu reserva</h2>
-              <ul className="grid gap-1 text-sm sm:grid-cols-2">
+              <h2 className="mb-3 text-xl font-semibold">Servicios que puedes sumar a tu reserva</h2>
+              <ul className="grid gap-2 text-sm sm:grid-cols-2">
                 {servicios.map((s) => (
-                  <li key={s.id} className="flex justify-between rounded-lg border bg-background px-3 py-2">
+                  <li key={s.id} className="flex justify-between gap-3 rounded-lg border bg-card px-3 py-2">
                     <span>{s.nombre}</span>
                     <span className="text-muted-foreground">{formatCLP(s.precio)}</span>
                   </li>
@@ -84,10 +88,11 @@ export default async function DepartamentoPublicoPage({ params, searchParams }: 
           ) : null}
         </div>
 
-        <Card className="h-fit lg:sticky lg:top-4">
+        <Card className="h-fit lg:sticky lg:top-20">
           <CardHeader>
-            <CardTitle>
-              {formatCLP(dep.tarifa_base)} <span className="text-sm font-normal text-muted-foreground">/ noche</span>
+            <CardTitle className="flex items-baseline gap-1.5">
+              <span className="font-heading text-2xl font-semibold tabular-nums">{formatCLP(dep.tarifa_base)}</span>
+              <span className="text-sm font-normal text-muted-foreground">por noche</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -112,8 +117,8 @@ export default async function DepartamentoPublicoPage({ params, searchParams }: 
             {cotizacion && (
               <div className="mt-4 flex flex-col gap-2 border-t pt-4 text-sm">
                 <div className="flex justify-between">
-                  <span>{formatDate(b.inicio)} → {formatDate(b.fin)}</span>
-                  <span>{cotizacion.noches} noche(s)</span>
+                  <span>{formatDate(b.inicio)} al {formatDate(b.fin)}</span>
+                  <span>{plural(cotizacion.noches, "noche", "noches")}</span>
                 </div>
                 <div className="flex justify-between"><span>Arriendo</span><span>{formatCLP(cotizacion.monto_arriendo)}</span></div>
                 <div className="flex justify-between font-medium"><span>Anticipo para confirmar</span><span>{formatCLP(cotizacion.monto_anticipo)}</span></div>
