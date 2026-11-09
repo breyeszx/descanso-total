@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { validarFechaNoFutura, validarRangoFuturo, zFecha } from "@/lib/fechas";
+import { zNombrePersona, zTelefonoOpcional } from "@/lib/contacto";
 import { createClient } from "@/lib/supabase/server";
 import { requirePerfil } from "@/lib/auth";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
@@ -26,9 +27,9 @@ export async function guardarVehiculo(_: FormState, formData: FormData): Promise
 }
 
 const conductorSchema = z.object({
-  nombre: z.string().trim().min(2, "Ingresa el nombre"),
-  telefono: z.string().trim().optional(),
-  licencia: z.string().trim().optional(),
+  nombre: zNombrePersona("Ingresa el nombre"),
+  telefono: zTelefonoOpcional,
+  licencia: z.string().trim().max(10, "Clase de licencia demasiado larga").optional(),
 });
 
 export async function guardarConductor(_: FormState, formData: FormData): Promise<FormState> {

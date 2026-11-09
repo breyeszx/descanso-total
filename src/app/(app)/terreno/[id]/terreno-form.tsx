@@ -67,7 +67,7 @@ export function TerrenoForm({ modo, reserva: r, acompanantes, items, estadoEntra
             {faltan > 0 && (
               <form action={acAction} className="grid gap-2 rounded-lg border bg-muted/30 p-3 sm:grid-cols-3">
                 <InputField name="nombre" label="Nombre" state={acState} required />
-                <InputField name="documento" label="RUT / pasaporte" state={acState} required />
+                <InputField name="documento" label="RUT / pasaporte" state={acState} placeholder="12.345.678-9 o AB123456" maxLength={20} required />
                 <div className="flex items-end gap-2">
                   <SubmitButton variant="outline">Agregar</SubmitButton>
                   <FormMessage state={acState} />

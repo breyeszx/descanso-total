@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { zDocumento, zNombrePersona } from "@/lib/contacto";
 import { requirePerfil } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -183,7 +184,7 @@ export async function registrarCheckOut(reservaId: number, _: FormState, formDat
   redirect(`/terreno/${reservaId}/listo?acta=${acta.id}`);
 }
 
-const acompSchema = z.object({ nombre: z.string().trim().min(2, "Nombre requerido"), documento: z.string().trim().min(5, "Documento requerido") });
+const acompSchema = z.object({ nombre: zNombrePersona("Nombre requerido"), documento: zDocumento });
 
 export async function agregarAcompananteTerreno(reservaId: number, _: FormState, formData: FormData): Promise<FormState> {
   await requirePerfil(["funcionario", "admin"]);

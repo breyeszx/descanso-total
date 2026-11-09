@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatearRut } from "@/lib/rut";
+import { formatearTelefono } from "@/lib/contacto";
 import { formatDate } from "@/lib/format";
 
 export const metadata = { title: "Clientes" };
@@ -57,7 +58,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
                   </TableCell>
                   <TableCell>{formatearRut(c.rut)}</TableCell>
                   <TableCell>{c.email}</TableCell>
-                  <TableCell className="hidden md:table-cell">{c.telefono ?? "—"}</TableCell>
+                  <TableCell className="hidden md:table-cell">{formatearTelefono(c.telefono)}</TableCell>
                   <TableCell className="hidden md:table-cell">{c.profile_id ? "Sí" : "No"}</TableCell>
                   <TableCell className="hidden md:table-cell">{formatDate(c.created_at)}</TableCell>
                 </TableRow>

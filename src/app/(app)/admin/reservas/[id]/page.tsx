@@ -6,6 +6,7 @@ import { EstadoBadge } from "@/components/estado-badge";
 import { Button } from "@/components/ui/button";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
 import { formatearRut } from "@/lib/rut";
+import { formatearTelefono } from "@/lib/contacto";
 import { PagoManualForm, AccionesReserva } from "./paneles";
 import { LogisticaPanel } from "./logistica";
 
@@ -42,7 +43,7 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
           <h1 className="text-2xl font-semibold">{r.departamento_nombre} · {formatDate(r.fecha_inicio)} → {formatDate(r.fecha_fin)}</h1>
           <p className="text-sm text-muted-foreground">
             <Link href={`/admin/clientes/${r.cliente_id}`} className="hover:underline">{r.cliente_nombre} {r.cliente_apellido ?? ""}</Link>
-            {" · "}{formatearRut(r.cliente_rut)} · {r.cliente_email}{r.cliente_telefono ? ` · ${r.cliente_telefono}` : ""} · Origen {r.origen}
+            {" · "}{formatearRut(r.cliente_rut)} · {r.cliente_email}{r.cliente_telefono ? ` · ${formatearTelefono(r.cliente_telefono)}` : ""} · Origen {r.origen}
           </p>
         </div>
         <EstadoBadge estado={r.estado!} className="text-sm" />
@@ -95,7 +96,7 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
             <CardContent className="text-sm">
               <p className="font-medium">{r.cliente_nombre} {r.cliente_apellido ?? ""} <span className="text-muted-foreground">(titular)</span></p>
               {acomp?.map((a) => (
-                <p key={a.id}>{a.nombre} <span className="text-muted-foreground">· {a.documento}{a.telefono ? ` · ${a.telefono}` : ""}</span></p>
+                <p key={a.id}>{a.nombre} <span className="text-muted-foreground">· {a.documento}{a.telefono ? ` · ${formatearTelefono(a.telefono)}` : ""}</span></p>
               ))}
             </CardContent>
           </Card>

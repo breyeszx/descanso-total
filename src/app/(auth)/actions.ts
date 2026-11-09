@@ -3,14 +3,15 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { zEmail, zNombrePersona } from "@/lib/contacto";
 
 const loginSchema = z.object({
-  email: z.string().email("Correo inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  email: zEmail(),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").max(72, "La contraseña es demasiado larga"),
 });
 
 const registroSchema = loginSchema.extend({
-  nombre: z.string().min(2, "Ingresa tu nombre completo"),
+  nombre: zNombrePersona("Ingresa tu nombre completo"),
 });
 
 export type AuthState = { error?: string; ok?: string } | undefined;

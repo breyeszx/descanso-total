@@ -32,9 +32,9 @@ export function AcompanantesPanel({ reservaId, acompanantes, editable }: { reser
       {editable && (
         <form action={formAction} className="grid gap-3 rounded-lg border bg-muted/30 p-4 sm:grid-cols-4">
           <InputField name="nombre" label="Nombre completo" state={state} required />
-          <InputField name="documento" label="RUT o pasaporte" state={state} required />
+          <InputField name="documento" label="RUT o pasaporte" state={state} placeholder="12.345.678-9 o AB123456" maxLength={20} required />
           <InputField name="fecha_nacimiento" label="Fecha de nacimiento" type="date" min={fechaMinimaNacimiento()} max={hoyISO()} state={state} />
-          <InputField name="telefono" label="Teléfono" type="tel" state={state} />
+          <InputField name="telefono" label="Teléfono" type="tel" state={state} placeholder="+56 9 1234 5678" />
           <div className="flex items-center gap-3 sm:col-span-4">
             <SubmitButton variant="outline">Agregar acompañante</SubmitButton>
             <FormMessage state={state} />

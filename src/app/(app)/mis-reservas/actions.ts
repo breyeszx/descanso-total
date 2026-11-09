@@ -6,12 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
 import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
 import { refinarEstadia, zFecha, zFechaNacimiento } from "@/lib/fechas";
+import { zDocumento, zNombrePersona, zTelefonoOpcional } from "@/lib/contacto";
 
 const acompananteSchema = z.object({
-  nombre: z.string().trim().min(2, "Ingresa el nombre"),
-  documento: z.string().trim().min(5, "Ingresa RUT o pasaporte"),
+  nombre: zNombrePersona("Ingresa el nombre"),
+  documento: zDocumento,
   fecha_nacimiento: zFechaNacimiento,
-  telefono: z.string().trim().optional(),
+  telefono: zTelefonoOpcional,
 });
 
 export async function agregarAcompanante(reservaId: number, _: FormState, formData: FormData): Promise<FormState> {
