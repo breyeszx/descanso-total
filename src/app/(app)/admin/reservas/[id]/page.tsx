@@ -102,6 +102,8 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
 
           <LogisticaPanel
             reservaId={reservaId}
+            inicio={r.fecha_inicio!}
+            fin={r.fecha_fin!}
             editable={activa || r.estado === "en_curso"}
             transportes={transportes ?? []}
             vehiculos={vehiculos ?? []}

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCLP, formatDate, hoyISO } from "@/lib/format";
+import { fechaValida } from "@/lib/fechas";
 import { MovimientoForm } from "./movimiento-form";
 
 export const metadata = { title: "Finanzas" };
@@ -12,8 +13,9 @@ export const metadata = { title: "Finanzas" };
 export default async function FinanzasPage({ searchParams }: { searchParams: Promise<{ desde?: string; hasta?: string; tipo?: string }> }) {
   const sp = await searchParams;
   const hoy = hoyISO();
-  const desde = sp.desde || hoy.slice(0, 8) + "01";
-  const hasta = sp.hasta || hoy;
+  let desde = fechaValida(sp.desde) ? sp.desde : hoy.slice(0, 8) + "01";
+  let hasta = fechaValida(sp.hasta) ? sp.hasta : hoy;
+  if (hasta < desde) [desde, hasta] = [hasta, desde];
   const supabase = await createClient();
   let q = supabase.from("movimientos_financieros").select("*, departamentos(codigo), reservas(codigo)").gte("fecha", desde).lte("fecha", hasta).order("fecha", { ascending: false }).order("id", { ascending: false }).limit(300);
   if (sp.tipo === "ingreso" || sp.tipo === "egreso") q = q.eq("tipo", sp.tipo);

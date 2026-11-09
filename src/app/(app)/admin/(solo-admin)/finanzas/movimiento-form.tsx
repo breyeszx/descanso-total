@@ -14,7 +14,7 @@ export function MovimientoForm({ departamentos }: { departamentos: { id: number;
       <SelectField name="tipo" label="Tipo" state={state} defaultValue="egreso" options={[{ value: "ingreso", label: "Ingreso" }, { value: "egreso", label: "Egreso" }]} />
       <SelectField name="categoria" label="Categoría" state={state} defaultValue="otro" options={CATEGORIAS.map((c) => ({ value: c, label: c.replace("_", " ") }))} />
       <InputField name="monto" label="Monto (CLP)" type="number" min={1} state={state} required />
-      <InputField name="fecha" label="Fecha" type="date" defaultValue={hoyISO()} state={state} required />
+      <InputField name="fecha" label="Fecha" type="date" max={hoyISO()} defaultValue={hoyISO()} state={state} required />
       <SelectField name="departamento_id" label="Departamento" state={state} options={[{ value: "", label: "General" }, ...departamentos.map((d) => ({ value: String(d.id), label: `${d.codigo} ${d.nombre}` }))]} />
       <InputField name="descripcion" label="Descripción" state={state} />
       <div className="flex items-center gap-3 sm:col-span-3 lg:col-span-6"><SubmitButton>Registrar</SubmitButton><FormMessage state={state} /></div>

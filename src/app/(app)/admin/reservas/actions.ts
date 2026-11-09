@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { fechaHoraValida, sumarDias } from "@/lib/fechas";
+import { formatDate, hoyISO } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { requirePerfil } from "@/lib/auth";
-import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
+import { dbError, errorState, formToObject, formValues, zodError, type FormState } from "@/lib/form";
 import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
 
 const pagoSchema = z.object({
@@ -70,7 +72,7 @@ function revalidarReserva(id: number) {
 // ---------------- Logística (RF09, RF11) ----------------
 const transporteSchema = z.object({
   tipo: z.enum(["llegada", "salida", "tour"]),
-  fecha_hora: z.string().min(10, "Ingresa fecha y hora"),
+  fecha_hora: z.string().refine(fechaHoraValida, "Ingresa una fecha y hora válidas"),
   pasajeros: z.coerce.number().int().min(1),
   origen: z.string().trim().optional(),
   destino: z.string().trim().optional(),
@@ -84,6 +86,14 @@ export async function programarTransporte(reservaId: number, _: FormState, formD
   if (!parsed.success) return zodError(parsed.error, formData);
   const d = parsed.data;
   const supabase = await createClient();
+  const { data: reserva } = await supabase.from("reservas").select("fecha_inicio, fecha_fin").eq("id", reservaId).single();
+  if (!reserva) return errorState("La reserva no existe", formData);
+  const dia = d.fecha_hora.slice(0, 10);
+  if (dia < hoyISO()) return { error: "El traslado no puede programarse en una fecha pasada", fields: { fecha_hora: "Fecha pasada" }, values: formValues(formData) };
+  const desde = sumarDias(reserva.fecha_inicio, -1), hasta = sumarDias(reserva.fecha_fin, 1);
+  if (dia < desde || dia > hasta) {
+    return { error: `El traslado debe quedar entre el ${formatDate(desde)} y el ${formatDate(hasta)}, el rango de la estadía con un día de margen`, fields: { fecha_hora: "Fuera de la estadía" }, values: formValues(formData) };
+  }
   const { error } = await supabase.from("transportes").insert({
     reserva_id: reservaId, tipo: d.tipo, pasajeros: d.pasajeros,
     // shortcut: datetime-local se interpreta en la zona horaria del servidor (correcto en Chile, desfasa en Vercel/UTC); fijar TZ=America/Santiago en el deploy o convertir con una librería de zonas al salir a producción

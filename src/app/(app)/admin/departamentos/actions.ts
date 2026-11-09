@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { zFechaNoFutura } from "@/lib/fechas";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
 
@@ -96,7 +97,7 @@ const itemSchema = z.object({
   descripcion: z.string().trim().optional(),
   cantidad: z.coerce.number().int().min(0),
   valor_unitario: z.coerce.number().int().min(0, "Valor inválido"),
-  fecha_adquisicion: z.string().optional(),
+  fecha_adquisicion: zFechaNoFutura("La fecha de adquisición"),
 });
 
 export async function guardarItem(depId: number, itemId: number | null, _: FormState, formData: FormData): Promise<FormState> {

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { busquedaValida, type Busqueda } from "@/lib/catalogo";
+import { busquedaValida, problemaBusqueda, type Busqueda } from "@/lib/catalogo";
+import { fechaMaximaReserva, fechaValida, sumarDias } from "@/lib/fechas";
 import { formatCLP, formatDate, hoyISO } from "@/lib/format";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -37,6 +38,9 @@ export default async function DepartamentoPublicoPage({ params, searchParams }: 
   }
 
   const plural = (n: number | null, uno: string, varios: string) => `${n ?? 0} ${n === 1 ? uno : varios}`;
+  const hoy = hoyISO();
+  const minFin = fechaValida(b.inicio) && b.inicio >= hoy ? sumarDias(b.inicio, 1) : sumarDias(hoy, 1);
+  const problema = problemaBusqueda(b);
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:py-8">
@@ -100,11 +104,11 @@ export default async function DepartamentoPublicoPage({ params, searchParams }: 
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col gap-1">
                   <Label htmlFor="inicio">Llegada</Label>
-                  <Input id="inicio" name="inicio" type="date" min={hoyISO()} defaultValue={b.inicio} required />
+                  <Input id="inicio" name="inicio" type="date" min={hoy} max={fechaMaximaReserva(hoy)} defaultValue={b.inicio} required />
                 </div>
                 <div className="flex flex-col gap-1">
                   <Label htmlFor="fin">Salida</Label>
-                  <Input id="fin" name="fin" type="date" min={hoyISO()} defaultValue={b.fin} required />
+                  <Input id="fin" name="fin" type="date" min={minFin} defaultValue={b.fin} required />
                 </div>
               </div>
               <div className="flex flex-col gap-1">
@@ -112,6 +116,7 @@ export default async function DepartamentoPublicoPage({ params, searchParams }: 
                 <Input id="huespedes" name="huespedes" type="number" min={1} max={dep.capacidad_max!} defaultValue={huespedes} />
               </div>
               <Button type="submit" variant="outline">Ver disponibilidad</Button>
+              {problema && <p role="alert" className="text-sm text-destructive">{problema}</p>}
             </form>
 
             {cotizacion && (

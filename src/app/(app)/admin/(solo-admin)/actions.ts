@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { validarFechaNoFutura, validarRangoFuturo, zFecha } from "@/lib/fechas";
 import { createClient } from "@/lib/supabase/server";
 import { requirePerfil } from "@/lib/auth";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
@@ -76,17 +77,19 @@ const mantencionSchema = z.object({
   departamento_id: z.coerce.number().int().positive("Selecciona un departamento"),
   titulo: z.string().trim().min(3, "Ingresa el título"),
   descripcion: z.string().trim().optional(),
-  fecha_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
-  fecha_fin: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
+  fecha_inicio: zFecha("Ingresa una fecha de inicio válida"),
+  fecha_fin: zFecha("Ingresa una fecha de término válida"),
   costo: z.coerce.number().int().min(0).default(0),
   responsable: z.string().trim().optional(),
+}).superRefine((d, ctx) => {
+  const p = validarRangoFuturo(d.fecha_inicio, d.fecha_fin);
+  if (p) ctx.addIssue({ code: "custom", message: p.mensaje, path: [p.campo === "inicio" ? "fecha_inicio" : "fecha_fin"] });
 });
 
 export async function crearMantencion(_: FormState, formData: FormData): Promise<FormState> {
   await requirePerfil(["admin"]);
   const parsed = mantencionSchema.safeParse(formToObject(formData));
   if (!parsed.success) return zodError(parsed.error, formData);
-  if (parsed.data.fecha_fin < parsed.data.fecha_inicio) return errorState("La fecha de término debe ser igual o posterior al inicio", formData);
   const supabase = await createClient();
   const { error } = await supabase.from("mantenciones").insert({ ...parsed.data, descripcion: parsed.data.descripcion ?? null, responsable: parsed.data.responsable ?? null });
   if (error) return errorState(dbError(error.message), formData);
@@ -107,7 +110,7 @@ const movimientoSchema = z.object({
   tipo: z.enum(["ingreso", "egreso"]),
   categoria: z.enum(["arriendo", "servicio_extra", "cargo", "reembolso", "reparacion", "mantencion", "dividendo", "contribucion", "transporte", "otro"]),
   monto: z.coerce.number().int().positive("Monto mayor a 0"),
-  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
+  fecha: zFecha("Ingresa una fecha válida").refine((v) => validarFechaNoFutura(v) === null, "La fecha del movimiento no puede ser futura"),
   departamento_id: z.coerce.number().int().optional(),
   descripcion: z.string().trim().optional(),
 });

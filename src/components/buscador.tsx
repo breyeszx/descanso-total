@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { hoyISO } from "@/lib/format";
+import { fechaMaximaReserva, fechaValida, sumarDias } from "@/lib/fechas";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -13,6 +14,8 @@ type Props = {
 
 export function Buscador({ zonas, valores = {}, compacto }: Props) {
   const hoy = hoyISO();
+  const maxInicio = fechaMaximaReserva(hoy);
+  const minFin = fechaValida(valores.inicio) && valores.inicio >= hoy ? sumarDias(valores.inicio, 1) : sumarDias(hoy, 1);
   return (
     <form
       action="/departamentos"
@@ -39,11 +42,11 @@ export function Buscador({ zonas, valores = {}, compacto }: Props) {
       </div>
       <div className="flex min-w-0 flex-col gap-1.5">
         <Label htmlFor="inicio">Llegada</Label>
-        <Input id="inicio" name="inicio" type="date" min={hoy} defaultValue={valores.inicio} className="h-10 min-w-0" />
+        <Input id="inicio" name="inicio" type="date" min={hoy} max={maxInicio} defaultValue={valores.inicio} className="h-10 min-w-0" />
       </div>
       <div className="flex min-w-0 flex-col gap-1.5">
         <Label htmlFor="fin">Salida</Label>
-        <Input id="fin" name="fin" type="date" min={hoy} defaultValue={valores.fin} className="h-10 min-w-0" />
+        <Input id="fin" name="fin" type="date" min={minFin} max={sumarDias(maxInicio, 30)} defaultValue={valores.fin} className="h-10 min-w-0" />
       </div>
       <div className="flex min-w-0 flex-col gap-1.5">
         <Label htmlFor="huespedes">Huéspedes</Label>

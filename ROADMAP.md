@@ -75,7 +75,7 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - Omitido: gráficos con librería (se usaron barras CSS sin dependencias).
 
 ### Fase 8 – QA, seguridad y despliegue (RNF06-08, RNF11, RNF12, RNF13)
-- [x] Pruebas: `npm test` (RUT, períodos, mensajes de error) y `bash scripts/test-db.sh` (arriendo/anticipo, anti-overbooking, bloqueo por mantención, confirmación por pago, disponibilidad). Flujos de reserva, Webpay, check-in/out verificados manualmente en navegador en cada fase.
+- [x] Pruebas: `npm test` (RUT, períodos, mensajes de error, reglas de fechas en `src/lib/fechas.ts`: estadías no pasadas, salida posterior, máximo 30 noches y 1 año de anticipación, nacimientos no futuros ni mayores a 120 años, fechas contables no futuras, traslados dentro de la estadía) y `bash scripts/test-db.sh` (arriendo/anticipo, anti-overbooking, bloqueo por mantención, confirmación por pago, disponibilidad). Flujos de reserva, Webpay, check-in/out verificados manualmente en navegador en cada fase.
 - [x] Auditoría BD: RLS en todas las tablas, funciones definer con search_path fijo, vistas security_invoker; se revocó a anon/authenticated `encolar_notificaciones_programadas` y `recalcular_reserva` (migración 0007).
 - [x] Índices en FKs consultadas (migración 0007). Respaldos: Supabase hace backups diarios automáticos en el plan del proyecto.
 - [x] README con pasos de despliegue en Vercel, variables de entorno y manual breve por rol.

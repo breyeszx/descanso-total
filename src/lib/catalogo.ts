@@ -1,12 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import type { DepCard } from "@/components/departamento-card";
+import { validarEstadia } from "@/lib/fechas";
 
 export type Busqueda = { inicio?: string; fin?: string; zona?: string; huespedes?: string };
 
-const ISO = /^\d{4}-\d{2}-\d{2}$/;
-
+/** Hay fechas y cumplen las reglas de estadía (no pasadas, salida posterior, dentro de los límites). */
 export function busquedaValida(b: Busqueda) {
-  return !!(b.inicio && b.fin && ISO.test(b.inicio) && ISO.test(b.fin) && b.fin > b.inicio);
+  return !!(b.inicio && b.fin && validarEstadia(b.inicio, b.fin) === null);
+}
+
+/** Mensaje para mostrar cuando el usuario ingresó fechas pero no sirven. Null si no hay fechas o son válidas. */
+export function problemaBusqueda(b: Busqueda) {
+  if (!b.inicio && !b.fin) return null;
+  return validarEstadia(b.inicio, b.fin)?.mensaje ?? null;
 }
 
 export function busquedaQuery(b: Busqueda) {

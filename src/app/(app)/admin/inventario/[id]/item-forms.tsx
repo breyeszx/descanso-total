@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { hoyISO } from "@/lib/format";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormMessage, InputField, SelectField, SubmitButton } from "@/components/form/fields";
 import type { Tables } from "@/lib/supabase/database.types";
@@ -46,7 +47,7 @@ export function ItemForms({ item }: { item: Tables<"inventario_items"> }) {
             <InputField name="categoria" label="Categoría" state={editState} defaultValue={item.categoria ?? ""} />
             <InputField name="cantidad" label="Cantidad" type="number" min={0} state={editState} defaultValue={item.cantidad} />
             <InputField name="valor_unitario" label="Valor unitario (CLP)" type="number" min={0} state={editState} defaultValue={item.valor_unitario} />
-            <InputField name="fecha_adquisicion" label="Fecha adquisición" type="date" state={editState} defaultValue={item.fecha_adquisicion ?? ""} />
+            <InputField name="fecha_adquisicion" label="Fecha adquisición" type="date" max={hoyISO()} state={editState} defaultValue={item.fecha_adquisicion ?? ""} />
             <InputField name="descripcion" label="Descripción" state={editState} defaultValue={item.descripcion ?? ""} />
           </CardContent>
           <CardFooter className="mt-4 flex items-center justify-between">
