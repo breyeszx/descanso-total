@@ -2,7 +2,9 @@
 # Prueba las reglas de negocio en la base real dentro de una transacción que se revierte (no deja datos).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PSQL="${PSQL:-/c/Program Files/PostgreSQL/18/bin/psql.exe}"
+# psql del PATH (Mac/Linux); si no hay, la ruta de instalación en Windows. Se puede forzar con PSQL=/ruta/psql
+PSQL="${PSQL:-$(command -v psql || echo "/c/Program Files/PostgreSQL/18/bin/psql.exe")}"
+[ -f .env.local ] || { echo "Falta .env.local con SUPABASE_DB_URL"; exit 1; }
 DB=$(grep ^SUPABASE_DB_URL= .env.local | cut -d= -f2- | tr -d '\r')
 
 OUT=$("$PSQL" "$DB" -Atq -v ON_ERROR_STOP=0 <<'SQL' 2>&1
