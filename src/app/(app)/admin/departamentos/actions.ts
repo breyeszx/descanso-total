@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { zFechaNoFutura } from "@/lib/fechas";
 import { createClient } from "@/lib/supabase/server";
+import { requirePerfil } from "@/lib/auth";
+import { MAX_FOTOS_POR_SUBIDA, RUTA_FOTO } from "@/lib/fotos";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
 
 const depSchema = z.object({
@@ -50,28 +52,28 @@ export async function guardarDepartamento(id: number | null, _: FormState, formD
 }
 
 // ---------------- Fotos ----------------
-const MAX_FOTO = 5 * 1024 * 1024;
+/**
+ * Registra fotos que el navegador ya subió directo al bucket "departamentos".
+ * Los archivos no pasan por esta acción: las Server Actions aceptan 1 MB por defecto y Vercel corta en 4,5 MB.
+ */
+export async function registrarFotos(depId: number, paths: string[]): Promise<FormState> {
+  await requirePerfil(["admin"]);
+  if (!Array.isArray(paths) || paths.length === 0) return { error: "Selecciona al menos una imagen" };
+  if (paths.length > MAX_FOTOS_POR_SUBIDA) return { error: `Máximo ${MAX_FOTOS_POR_SUBIDA} fotos por subida` };
+  if (paths.some((p) => typeof p !== "string" || RUTA_FOTO.exec(p)?.[1] !== String(depId))) return { error: "Ruta de foto inválida" };
 
-export async function subirFoto(depId: number, _: FormState, formData: FormData): Promise<FormState> {
-  const archivos = formData.getAll("fotos").filter((f): f is File => f instanceof File && f.size > 0);
-  if (!archivos.length) return { error: "Selecciona al menos una imagen" };
   const supabase = await createClient();
   const { count } = await supabase.from("departamento_fotos").select("id", { count: "exact", head: true }).eq("departamento_id", depId);
-  let orden = count ?? 0;
-  for (const f of archivos) {
-    if (!f.type.startsWith("image/")) return { error: `"${f.name}" no es una imagen` };
-    if (f.size > MAX_FOTO) return { error: `"${f.name}" supera 5 MB` };
-    const ext = f.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const path = `${depId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("departamentos").upload(path, f, { contentType: f.type });
-    if (upErr) return { error: "No se pudo subir la imagen: " + upErr.message };
-    const { error } = await supabase
-      .from("departamento_fotos")
-      .insert({ departamento_id: depId, storage_path: path, orden: orden++, es_portada: orden === 1 });
-    if (error) return errorState(dbError(error.message), formData);
+  const base = count ?? 0;
+  const { error } = await supabase
+    .from("departamento_fotos")
+    .insert(paths.map((storage_path, i) => ({ departamento_id: depId, storage_path, orden: base + i, es_portada: base + i === 0 })));
+  if (error) {
+    await supabase.storage.from("departamentos").remove(paths); // no dejar archivos huérfanos
+    return { error: dbError(error.message) };
   }
   revalidarDep(depId);
-  return { ok: `${archivos.length} foto(s) subida(s)` };
+  return { ok: paths.length === 1 ? "Foto subida" : `${paths.length} fotos subidas` };
 }
 
 export async function eliminarFoto(fotoId: number, depId: number) {

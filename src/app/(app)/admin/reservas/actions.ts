@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { fechaHoraValida, sumarDias } from "@/lib/fechas";
+import { fechaHoraChileAISO, fechaHoraValida, sumarDias } from "@/lib/fechas";
 import { formatDate, hoyISO } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { requirePerfil } from "@/lib/auth";
@@ -96,8 +96,7 @@ export async function programarTransporte(reservaId: number, _: FormState, formD
   }
   const { error } = await supabase.from("transportes").insert({
     reserva_id: reservaId, tipo: d.tipo, pasajeros: d.pasajeros,
-    // shortcut: datetime-local se interpreta en la zona horaria del servidor (correcto en Chile, desfasa en Vercel/UTC); fijar TZ=America/Santiago en el deploy o convertir con una librería de zonas al salir a producción
-    fecha_hora: new Date(d.fecha_hora).toISOString(),
+    fecha_hora: fechaHoraChileAISO(d.fecha_hora),
     origen: d.origen ?? null, destino: d.destino ?? null, vehiculo_id: d.vehiculo_id ?? null, conductor_id: d.conductor_id ?? null,
   });
   if (error) return errorState(dbError(error.message), formData);

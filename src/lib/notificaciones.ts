@@ -64,7 +64,7 @@ export function renderNotificacion(n: Tables<"notificaciones">): { subject: stri
       return {
         subject: n.asunto,
         html: plantilla(`Reserva ${codigo} cancelada`, `
-          <p>Tu reserva fue cancelada.</p>
+          <p>${p.vencida ? "Tu reserva se canceló porque venció el plazo para pagar el anticipo." : "Tu reserva fue cancelada."}</p>
           ${Number(p.multa) > 0 ? `<p>Se aplicó una multa por cancelación fuera de plazo de <strong>${formatCLP(Number(p.multa))}</strong>.</p>` : "<p>No se aplicaron cargos.</p>"}
           <p>Esperamos verte pronto. ${boton(appUrl("/departamentos"), "Buscar otra fecha")}</p>`),
       };
@@ -102,11 +102,12 @@ export async function procesarNotificacionesPendientes(limite = 50) {
   return { enviadas, fallidas };
 }
 
-/** Encola avisos programados (transporte / check-out) y procesa la cola. */
+/** Libera reservas vencidas sin pago, encola avisos programados (transporte / check-out) y procesa la cola. */
 export async function ejecutarCronNotificaciones() {
   const supabase = createAdminClient();
-  const { data: encoladas, error } = await supabase.rpc("encolar_notificaciones_programadas");
+  const { data, error } = await supabase.rpc("encolar_y_expirar");
   if (error) throw new Error(error.message);
+  const { expiradas = 0, encoladas = 0 } = (data ?? {}) as { expiradas?: number; encoladas?: number };
   const resultado = await procesarNotificacionesPendientes();
-  return { encoladas: encoladas ?? 0, ...resultado };
+  return { expiradas, encoladas, ...resultado };
 }

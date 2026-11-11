@@ -730,6 +730,9 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"encolar_y_expirar":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "encolar_notificaciones_programadas":
 { Args: Record<PropertyKey, never>; Returns: number
                            },

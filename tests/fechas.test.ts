@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   diasEntre,
+  fechaHoraChileAISO,
   fechaHoraValida,
   fechaMinimaNacimiento,
   fechaValida,
@@ -86,4 +87,10 @@ test("esquemas zod: zFechaNacimiento y refinarEstadia", async () => {
   const mal = estadia.safeParse({ inicio: "2000-01-05", fin: "2000-01-04" });
   assert.equal(mal.success, false);
   assert.deepEqual(mal.error?.issues[0].path, ["inicio"]); // la llegada ya pasó, se reporta primero
+});
+
+test("fechaHoraChileAISO: hora de Chile a UTC sin depender del servidor", () => {
+  assert.equal(fechaHoraChileAISO("2026-11-20T15:30"), "2026-11-20T18:30:00.000Z"); // verano, UTC-3
+  assert.equal(fechaHoraChileAISO("2026-07-10T15:30"), "2026-07-10T19:30:00.000Z"); // invierno, UTC-4
+  assert.equal(fechaHoraChileAISO("2026-12-31T22:00:00"), "2027-01-01T01:00:00.000Z"); // cruza de día y de año
 });

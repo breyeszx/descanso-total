@@ -29,6 +29,30 @@ export function fechaHoraValida(valor: unknown): valor is string {
   return h >= 0 && h <= 23 && min >= 0 && min <= 59;
 }
 
+/** Diferencia en ms entre la hora de Chile y UTC en un instante dado (negativa: Chile va detrás de UTC). */
+function desfaseChile(instante: number) {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/Santiago", hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      .formatToParts(new Date(instante))
+      .map((x) => [x.type, Number(x.value)])
+  );
+  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(instante / 1000) * 1000;
+}
+
+/**
+ * Convierte una fecha y hora local de Chile (como la entrega un input datetime-local) al instante UTC en ISO.
+ * No depende de la zona horaria del servidor (Vercel corre en UTC) y respeta el cambio de hora.
+ */
+export function fechaHoraChileAISO(local: string) {
+  const [fecha, hora] = local.split("T");
+  const [y, m, d] = fecha.split("-").map(Number);
+  const [h, min, s = 0] = hora.split(":").map(Number);
+  const comoUtc = Date.UTC(y, m - 1, d, h, min, s);
+  let instante = comoUtc - desfaseChile(comoUtc);
+  instante = comoUtc - desfaseChile(instante); // segundo ajuste por si el primero cruzó un cambio de hora
+  return new Date(instante).toISOString();
+}
+
 export function sumarDias(iso: string, dias: number) {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d + dias)).toISOString().slice(0, 10);
