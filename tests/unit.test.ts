@@ -25,5 +25,9 @@ test("dbError: traduce errores de BD a mensajes de usuario", () => {
   assert.match(dbError('conflicting key value violates exclusion constraint "reservas_sin_solape"'), /ya tiene una reserva/);
   assert.equal(dbError("Existen reservas activas en el rango de la mantención"), "Existen reservas activas en el rango de la mantención");
   assert.match(dbError("new row violates row-level security policy"), /permisos/);
+  assert.match(dbError('duplicate key value violates unique constraint "pagos_un_webpay_pendiente"'), /pago Webpay en curso/);
+  assert.equal(dbError("El reembolso no puede superar lo pagado por la reserva ($280000)"), "El reembolso no puede superar lo pagado por la reserva ($280000)");
+  assert.equal(dbError("No puedes dar de baja 9 unidades: el ítem tiene 4"), "No puedes dar de baja 9 unidades: el ítem tiene 4");
+  assert.equal(dbError("Tienes 3 reservas pendientes de pago. Paga o cancela alguna antes de crear otra"), "Tienes 3 reservas pendientes de pago. Paga o cancela alguna antes de crear otra");
   assert.match(dbError("algo interno raro"), /Ocurrió un error/);
 });

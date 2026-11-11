@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
-import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
+import type { Resultado } from "@/lib/aviso";
+import { enviarPendientesEnSegundoPlano } from "@/lib/notificaciones";
 import { refinarEstadia, zFecha, zFechaNacimiento } from "@/lib/fechas";
 import { zDocumento, zNombrePersona, zTelefonoOpcional } from "@/lib/contacto";
 
@@ -31,9 +32,12 @@ export async function agregarAcompanante(reservaId: number, _: FormState, formDa
   return { ok: "Acompañante registrado" };
 }
 
-export async function eliminarAcompanante(id: number, reservaId: number) {
+export async function eliminarAcompanante(id: number, reservaId: number): Promise<Resultado> {
   const supabase = await createClient();
-  await supabase.from("acompanantes").delete().eq("id", id);
+  const { data, error } = await supabase.from("acompanantes").delete().eq("id", id).eq("reserva_id", reservaId).select("id");
+  if (error) return { error: dbError(error.message) };
+  // RLS no devuelve error: simplemente no borra si la reserva ya no admite cambios
+  if (!data?.length) return { error: "No se pudo quitar al acompañante: la reserva ya no admite cambios" };
   revalidatePath(`/mis-reservas/${reservaId}`);
 }
 
@@ -43,7 +47,7 @@ export async function cancelarReserva(reservaId: number, _: FormState, formData:
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancelar_reserva", { p_reserva: reservaId, p_motivo: motivo || undefined });
   if (error) return { error: dbError(error.message) };
-  await enviarPendientesSilencioso();
+  enviarPendientesEnSegundoPlano();
   revalidatePath(`/mis-reservas/${reservaId}`);
   revalidatePath("/mis-reservas");
   return { ok: "Reserva cancelada" };

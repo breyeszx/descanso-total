@@ -143,7 +143,7 @@ export default async function ReservaAdminPage({ params }: { params: Promise<{ i
               {activa && <Button render={<Link href={`/terreno/${reservaId}/check-in`} />}>Hacer check-in</Button>}
               {r.estado === "en_curso" && <Button render={<Link href={`/terreno/${reservaId}/check-out`} />}>Hacer check-out</Button>}
               {actas?.map((a) => (
-                <Button key={a.id} variant="outline" render={<a href={`/api/actas/${a.id}`} target="_blank" rel="noopener" />} disabled={!a.pdf_path}>
+                <Button key={a.id} variant="outline" render={<a href={`/api/actas/${a.id}`} target="_blank" rel="noopener" />}>
                   Acta {a.tipo === "check_in" ? "check-in" : "check-out"} · {formatDateTime(a.fecha)}{a.firma_conformidad ? "" : " (sin conformidad)"}
                 </Button>
               ))}

@@ -7,7 +7,8 @@ import { formatDate, hoyISO } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { requirePerfil } from "@/lib/auth";
 import { dbError, errorState, formToObject, formValues, zodError, type FormState } from "@/lib/form";
-import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
+import { enviarPendientesEnSegundoPlano, procesarNotificacionesPendientes } from "@/lib/notificaciones";
+import type { Resultado } from "@/lib/aviso";
 
 const pagoSchema = z.object({
   concepto: z.enum(["anticipo", "saldo", "servicio_extra", "cargo", "reembolso"]),
@@ -33,7 +34,7 @@ export async function registrarPagoManual(reservaId: number, _: FormState, formD
     notas: parsed.data.notas ?? null,
   });
   if (error) return errorState(dbError(error.message), formData);
-  await enviarPendientesSilencioso();
+  enviarPendientesEnSegundoPlano();
   revalidarReserva(reservaId);
   return { ok: "Pago registrado" };
 }
@@ -44,21 +45,23 @@ export async function cancelarReservaAdmin(reservaId: number, _: FormState, form
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancelar_reserva", { p_reserva: reservaId, p_motivo: motivo || undefined });
   if (error) return { error: dbError(error.message) };
-  await enviarPendientesSilencioso();
+  enviarPendientesEnSegundoPlano();
   revalidarReserva(reservaId);
   return { ok: "Reserva cancelada" };
 }
 
-export async function marcarNoShow(reservaId: number) {
+export async function marcarNoShow(reservaId: number): Promise<Resultado> {
   await requirePerfil(["admin", "funcionario"]);
   const supabase = await createClient();
-  await supabase.from("reservas").update({ estado: "no_show" }).eq("id", reservaId).in("estado", ["confirmada", "pendiente_pago"]);
+  const { data, error } = await supabase.from("reservas").update({ estado: "no_show" }).eq("id", reservaId).in("estado", ["confirmada", "pendiente_pago"]).select("id");
+  if (error) return { error: dbError(error.message) };
+  if (!data?.length) return { error: "La reserva ya no está pendiente ni confirmada" };
   revalidarReserva(reservaId);
 }
 
 export async function reenviarNotificaciones() {
   await requirePerfil(["admin"]);
-  await enviarPendientesSilencioso();
+  await procesarNotificacionesPendientes();
   revalidatePath("/admin/reservas");
 }
 
@@ -104,10 +107,13 @@ export async function programarTransporte(reservaId: number, _: FormState, formD
   return { ok: "Traslado programado" };
 }
 
-export async function cambiarEstadoTransporte(id: number, reservaId: number, estado: "completado" | "cancelado") {
+export async function cambiarEstadoTransporte(id: number, reservaId: number, estado: "completado" | "cancelado"): Promise<Resultado> {
   await requirePerfil(["admin", "funcionario"]);
+  if (estado !== "completado" && estado !== "cancelado") return { error: "Estado inválido" };
   const supabase = await createClient();
-  await supabase.from("transportes").update({ estado }).eq("id", id);
+  const { data, error } = await supabase.from("transportes").update({ estado }).eq("id", id).eq("reserva_id", reservaId).eq("estado", "programado").select("id");
+  if (error) return { error: dbError(error.message) };
+  if (!data?.length) return { error: "El traslado ya no está programado" };
   revalidarReserva(reservaId);
 }
 

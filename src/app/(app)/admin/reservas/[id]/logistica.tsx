@@ -8,6 +8,7 @@ import { EstadoBadge } from "@/components/estado-badge";
 import { formatCLP, formatDateTime, hoyISO } from "@/lib/format";
 import { sumarDias } from "@/lib/fechas";
 import { agregarServicioReserva, cambiarEstadoTransporte, programarTransporte } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 type Transporte = { id: number; tipo: string; fecha_hora: string; origen: string | null; destino: string | null; pasajeros: number; estado: string; vehiculos: { patente: string } | null; conductores: { nombre: string; telefono: string | null } | null };
 type Props = {
@@ -47,8 +48,8 @@ export function LogisticaPanel({ reservaId, inicio, fin, editable, transportes, 
                 <EstadoBadge estado={t.estado === "programado" ? "programada" : t.estado === "completado" ? "completada" : t.estado === "cancelado" ? "cancelada" : t.estado} />
                 {editable && t.estado === "programado" && (
                   <span className="flex gap-1">
-                    <Button size="sm" variant="outline" onClick={() => cambiarEstadoTransporte(t.id, reservaId, "completado")}>Completado</Button>
-                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => cambiarEstadoTransporte(t.id, reservaId, "cancelado")}>Cancelar</Button>
+                    <Button size="sm" variant="outline" onClick={() => conAviso(cambiarEstadoTransporte(t.id, reservaId, "completado"))}>Completado</Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => conAviso(cambiarEstadoTransporte(t.id, reservaId, "cancelado"))}>Cancelar</Button>
                   </span>
                 )}
               </li>

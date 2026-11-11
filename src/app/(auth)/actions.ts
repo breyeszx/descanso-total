@@ -25,7 +25,8 @@ export async function login(_: AuthState, formData: FormData): Promise<AuthState
   if (error) return { error: "Correo o contraseña incorrectos" };
 
   const next = (formData.get("next") as string) || "/dashboard";
-  redirect(next.startsWith("/") ? next : "/dashboard");
+  // Solo rutas internas: "//sitio.com" o "/\\sitio.com" llevarían a otro dominio
+  redirect(/^\/(?![\/\\])/.test(next) ? next : "/dashboard");
 }
 
 export async function registro(_: AuthState, formData: FormData): Promise<AuthState> {

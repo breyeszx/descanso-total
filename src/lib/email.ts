@@ -6,6 +6,11 @@ export type Correo = { to: string; subject: string; html: string; text?: string 
 
 export type ResultadoEnvio = { ok: true; id: string } | { ok: false; error: string };
 
+/** ¿Se puede enviar correo? En producción solo con SENDGRID_API_KEY; en desarrollo se simula. */
+export function correoDisponible() {
+  return !!process.env.SENDGRID_API_KEY || process.env.NODE_ENV !== "production";
+}
+
 export async function enviarCorreo(c: Correo): Promise<ResultadoEnvio> {
   const apiKey = process.env.SENDGRID_API_KEY;
   const from = process.env.EMAIL_FROM ?? "reservas@descansototal.cl";

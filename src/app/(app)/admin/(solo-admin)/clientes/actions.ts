@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { requirePerfil } from "@/lib/auth";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
 import { zEmail, zNombrePersona, zRutOpcional, zTelefonoOpcional } from "@/lib/contacto";
 
@@ -19,6 +20,7 @@ const schema = z.object({
 });
 
 export async function guardarCliente(id: number | null, _: FormState, formData: FormData): Promise<FormState> {
+  await requirePerfil(["admin"]);
   const parsed = schema.safeParse(formToObject(formData));
   if (!parsed.success) return zodError(parsed.error, formData);
 

@@ -7,6 +7,7 @@ import { zNombrePersona, zTelefonoOpcional } from "@/lib/contacto";
 import { createClient } from "@/lib/supabase/server";
 import { requirePerfil } from "@/lib/auth";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
+import type { Resultado } from "@/lib/aviso";
 
 const vehiculoSchema = z.object({
   patente: z.string().trim().min(4, "Patente inválida").toUpperCase(),
@@ -43,10 +44,13 @@ export async function guardarConductor(_: FormState, formData: FormData): Promis
   return { ok: "Conductor agregado" };
 }
 
-export async function alternarActivo(tabla: "vehiculos" | "conductores" | "servicios", id: number, activo: boolean) {
+export async function alternarActivo(tabla: "vehiculos" | "conductores" | "servicios", id: number, activo: boolean): Promise<Resultado> {
   await requirePerfil(["admin"]);
+  // El argumento llega del navegador: se valida aquí y no solo por tipos
+  if (!["vehiculos", "conductores", "servicios"].includes(tabla) || typeof activo !== "boolean") return { error: "Solicitud inválida" };
   const supabase = await createClient();
-  await supabase.from(tabla).update({ activo }).eq("id", id);
+  const { error } = await supabase.from(tabla).update({ activo }).eq("id", id);
+  if (error) return { error: dbError(error.message) };
   revalidatePath(tabla === "servicios" ? "/admin/servicios" : "/admin/flota");
 }
 
@@ -99,10 +103,17 @@ export async function crearMantencion(_: FormState, formData: FormData): Promise
   return { ok: "Mantención programada. Las fechas quedan bloqueadas para reservas." };
 }
 
-export async function cambiarEstadoMantencion(id: number, estado: "programada" | "en_curso" | "completada" | "cancelada", costo?: number) {
+const TRANSICIONES_MANTENCION: Record<string, string[]> = { en_curso: ["programada"], completada: ["programada", "en_curso"], cancelada: ["programada", "en_curso"] };
+
+export async function cambiarEstadoMantencion(id: number, estado: "en_curso" | "completada" | "cancelada", costo?: number): Promise<Resultado> {
   await requirePerfil(["admin"]);
+  const desde = TRANSICIONES_MANTENCION[estado];
+  if (!desde) return { error: "Estado inválido" };
+  if (costo !== undefined && (!Number.isInteger(costo) || costo < 0)) return { error: "El costo debe ser un monto entero mayor o igual a 0" };
   const supabase = await createClient();
-  await supabase.from("mantenciones").update(costo === undefined ? { estado } : { estado, costo }).eq("id", id);
+  const { data, error } = await supabase.from("mantenciones").update(costo === undefined ? { estado } : { estado, costo }).eq("id", id).in("estado", desde as ("programada" | "en_curso")[]).select("id");
+  if (error) return { error: dbError(error.message) };
+  if (!data?.length) return { error: "La mantención ya cambió de estado" };
   revalidatePath("/admin/mantenciones");
   revalidatePath("/dashboard");
 }

@@ -10,6 +10,7 @@ import { MAX_FOTOS_POR_SUBIDA, problemaFoto, TIPOS_FOTO } from "@/lib/fotos";
 import type { FormState } from "@/lib/form";
 import type { Tables } from "@/lib/supabase/database.types";
 import { eliminarFoto, marcarPortada, registrarFotos } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 type Foto = Tables<"departamento_fotos"> & { url: string };
 
@@ -64,13 +65,13 @@ export function FotosPanel({ depId, fotos }: { depId: number; fotos: Foto[] }) {
               )}
               <figcaption className="flex justify-between gap-1 p-1.5">
                 {!f.es_portada && (
-                  <Button size="sm" variant="ghost" onClick={() => marcarPortada(f.id, depId)}>Portada</Button>
+                  <Button size="sm" variant="ghost" onClick={() => conAviso(marcarPortada(f.id, depId))}>Portada</Button>
                 )}
                 <Button
                   size="sm"
                   variant="ghost"
                   className="ml-auto text-destructive"
-                  onClick={() => { if (confirm("¿Eliminar esta foto?")) eliminarFoto(f.id, depId); }}
+                  onClick={() => { if (confirm("¿Eliminar esta foto?")) conAviso(eliminarFoto(f.id, depId)); }}
                 >
                   Eliminar
                 </Button>

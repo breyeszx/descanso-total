@@ -4,9 +4,10 @@ import { useActionState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { FormMessage, InputField, SubmitButton } from "@/components/form/fields";
 import { alternarActivo, guardarConductor, guardarVehiculo } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 export function ActivoToggle({ tabla, id, activo }: { tabla: "vehiculos" | "conductores" | "servicios"; id: number; activo: boolean }) {
-  return <Switch defaultChecked={activo} onCheckedChange={(v: boolean) => alternarActivo(tabla, id, v)} aria-label="Activo" />;
+  return <Switch defaultChecked={activo} onCheckedChange={(v: boolean) => conAviso(alternarActivo(tabla, id, v))} aria-label="Activo" />;
 }
 
 export function VehiculoForm() {

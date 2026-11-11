@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { enviarCorreo, plantilla } from "@/lib/email";
+import { after } from "next/server";
+import { correoDisponible, enviarCorreo, plantilla, type ResultadoEnvio } from "@/lib/email";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
 import { appUrl } from "@/lib/webpay";
 import type { Tables } from "@/lib/supabase/database.types";
@@ -74,13 +75,27 @@ export function renderNotificacion(n: Tables<"notificaciones">): { subject: stri
   }
 }
 
-/** Envía las notificaciones pendientes cuya hora programada ya pasó. Devuelve el resumen. */
+const MAX_INTENTOS = 3;
+const DIAS_CADUCIDAD = 3;
+
+/**
+ * Envía las notificaciones pendientes cuya hora programada ya pasó y reintenta las fallidas (hasta 3 intentos).
+ * Si el correo no está configurado en producción no toca la cola: quedan pendientes hasta que se active,
+ * y al activarse solo salen las de los últimos días (las más antiguas se marcan como caducadas).
+ */
 export async function procesarNotificacionesPendientes(limite = 50) {
+  if (!correoDisponible()) return { enviadas: 0, fallidas: 0, omitidas: true };
   const supabase = createAdminClient();
+  await supabase
+    .from("notificaciones")
+    .update({ estado: "fallida", error: "Caducada sin enviar", intentos: MAX_INTENTOS })
+    .eq("estado", "pendiente")
+    .lt("programada_para", new Date(Date.now() - DIAS_CADUCIDAD * 86_400_000).toISOString());
+
   const { data: pendientes } = await supabase
     .from("notificaciones")
     .select("*")
-    .eq("estado", "pendiente")
+    .or(`estado.eq.pendiente,and(estado.eq.fallida,intentos.lt.${MAX_INTENTOS})`)
     // Tolerancia de 5 min por posible desfase de reloj entre este servidor y Postgres
     .lte("programada_para", new Date(Date.now() + 5 * 60_000).toISOString())
     .order("programada_para")
@@ -90,16 +105,30 @@ export async function procesarNotificacionesPendientes(limite = 50) {
   let fallidas = 0;
   for (const n of pendientes ?? []) {
     const { subject, html } = renderNotificacion(n);
-    const r = await enviarCorreo({ to: n.destinatario, subject, html });
+    const r = await enviarCorreo({ to: n.destinatario, subject, html }).catch((e): ResultadoEnvio => ({ ok: false, error: e instanceof Error ? e.message : String(e) }));
     if (r.ok) {
       enviadas++;
       await supabase.from("notificaciones").update({ estado: "enviada", enviada_at: new Date().toISOString(), proveedor_id: r.id, error: null }).eq("id", n.id);
     } else {
       fallidas++;
-      await supabase.from("notificaciones").update({ estado: "fallida", error: r.error }).eq("id", n.id);
+      await supabase.from("notificaciones").update({ estado: "fallida", error: r.error, intentos: n.intentos + 1 }).eq("id", n.id);
     }
   }
-  return { enviadas, fallidas };
+  return { enviadas, fallidas, omitidas: false };
+}
+
+/**
+ * Envía la cola después de responder al usuario, sin bloquear la acción ni fallarla.
+ * Vive aquí y no en un archivo "use server" para que no quede expuesta como acción invocable desde el navegador.
+ */
+export function enviarPendientesEnSegundoPlano(limite = 10) {
+  after(async () => {
+    try {
+      await procesarNotificacionesPendientes(limite);
+    } catch (e) {
+      console.error("notificaciones:", e);
+    }
+  });
 }
 
 /** Libera reservas vencidas sin pago, encola avisos programados (transporte / check-out) y procesa la cola. */

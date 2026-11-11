@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
 import { refinarEstadia, zFecha } from "@/lib/fechas";
-import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
+import { enviarPendientesEnSegundoPlano } from "@/lib/notificaciones";
 
 const schema = z.object({
   departamento_id: z.coerce.number().int().positive(),
@@ -37,6 +37,6 @@ export async function crearReserva(_: FormState, formData: FormData): Promise<Fo
     p_notas: parsed.data.notas ?? undefined,
   });
   if (error) return errorState(dbError(error.message), formData);
-  await enviarPendientesSilencioso();
+  enviarPendientesEnSegundoPlano();
   redirect(`/mis-reservas/${id}?nueva=1`);
 }

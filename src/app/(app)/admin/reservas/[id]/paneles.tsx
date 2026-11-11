@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { FormMessage, InputField, SelectField, SubmitButton, TextareaField } from "@/components/form/fields";
 import { hoyISO } from "@/lib/format";
 import { cancelarReservaAdmin, marcarNoShow, registrarPagoManual } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 export function PagoManualForm({ reservaId, sugerido, conceptoSugerido }: { reservaId: number; sugerido: number; conceptoSugerido: "anticipo" | "saldo" }) {
   const [state, formAction] = useActionState(registrarPagoManual.bind(null, reservaId), undefined);
@@ -68,7 +69,7 @@ export function AccionesReserva({ reservaId, fechaInicio }: { reservaId: number;
           </div>
         </form>
         {llegadaPasada && (
-          <Button variant="outline" onClick={() => { if (confirm("¿Marcar la reserva como no presentada (no show)?")) marcarNoShow(reservaId); }}>
+          <Button variant="outline" onClick={() => { if (confirm("¿Marcar la reserva como no presentada (no show)?")) conAviso(marcarNoShow(reservaId), "Reserva marcada como no show"); }}>
             Marcar no show
           </Button>
         )}

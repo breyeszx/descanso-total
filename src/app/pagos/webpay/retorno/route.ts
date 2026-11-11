@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { appUrl, webpayTransaction } from "@/lib/webpay";
-import { procesarNotificacionesPendientes } from "@/lib/notificaciones";
+import { enviarPendientesEnSegundoPlano } from "@/lib/notificaciones";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +30,7 @@ async function manejar(params: URLSearchParams) {
   if (!tokenWs) {
     const pago = tbkToken ? await buscarPago({ webpay_token: tbkToken }) : tbkOrden ? await buscarPago({ webpay_buy_order: tbkOrden }) : null;
     if (pago && pago.estado === "pendiente") {
-      await supabase.from("pagos").update({ estado: "anulado", notas: tbkToken ? "Pago abortado por el usuario" : "Tiempo de espera agotado en Webpay" }).eq("id", pago.id);
+      await supabase.from("pagos").update({ estado: "anulado", notas: tbkToken ? "Pago abortado por el usuario" : "Tiempo de espera agotado en Webpay" }).eq("id", pago.id).eq("estado", "pendiente");
     }
     return NextResponse.redirect(appUrl(pago ? `/mis-reservas/${pago.reserva_id}?pago=anulado` : "/mis-reservas?pago=anulado"), 303);
   }
@@ -50,13 +50,16 @@ async function manejar(params: URLSearchParams) {
         webpay_response: JSON.parse(JSON.stringify(res)),
         pagado_at: aprobado ? new Date().toISOString() : null,
       })
-      .eq("id", pago.id);
-    if (aprobado) await procesarNotificacionesPendientes(5).catch(() => undefined);
+      .eq("id", pago.id)
+      .eq("estado", "pendiente");
+    if (aprobado) enviarPendientesEnSegundoPlano(5);
     return NextResponse.redirect(appUrl(`/mis-reservas/${pago.reserva_id}?pago=${aprobado ? "ok" : "rechazado"}`), 303);
   } catch (e) {
     console.error("webpay commit:", e);
-    await supabase.from("pagos").update({ estado: "rechazado", notas: "Error al confirmar con Transbank" }).eq("id", pago.id);
-    return NextResponse.redirect(appUrl(`/mis-reservas/${pago.reserva_id}?pago=error`), 303);
+    // Si otra petición ya confirmó este pago (doble retorno), no se pisa su resultado
+    await supabase.from("pagos").update({ estado: "rechazado", notas: "Error al confirmar con Transbank" }).eq("id", pago.id).eq("estado", "pendiente");
+    const { data: final } = await supabase.from("pagos").select("estado").eq("id", pago.id).single();
+    return NextResponse.redirect(appUrl(`/mis-reservas/${pago.reserva_id}?pago=${final?.estado === "aprobado" ? "ok" : "error"}`), 303);
   }
 }
 

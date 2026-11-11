@@ -8,6 +8,7 @@ import { formatDate, hoyISO } from "@/lib/format";
 import { fechaMaximaReserva, fechaMinimaNacimiento, sumarDias } from "@/lib/fechas";
 import type { Tables } from "@/lib/supabase/database.types";
 import { agregarAcompanante, cancelarReserva, eliminarAcompanante, modificarReserva } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 export function AcompanantesPanel({ reservaId, acompanantes, editable }: { reservaId: number; acompanantes: Tables<"acompanantes">[]; editable: boolean }) {
   const [state, formAction] = useActionState(agregarAcompanante.bind(null, reservaId), undefined);
@@ -21,7 +22,7 @@ export function AcompanantesPanel({ reservaId, acompanantes, editable }: { reser
               <span className="text-muted-foreground">{a.documento}</span>
               <span className="text-muted-foreground">{a.fecha_nacimiento ? formatDate(a.fecha_nacimiento) : ""}</span>
               {editable && (
-                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => eliminarAcompanante(a.id, reservaId)}>Quitar</Button>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => conAviso(eliminarAcompanante(a.id, reservaId))}>Quitar</Button>
               )}
             </li>
           ))}
