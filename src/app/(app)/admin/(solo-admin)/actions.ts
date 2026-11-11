@@ -2,9 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { validarFechaNoFutura, validarRangoFuturo, zFecha } from "@/lib/fechas";
+import { zNombrePersona, zTelefonoOpcional } from "@/lib/contacto";
 import { createClient } from "@/lib/supabase/server";
 import { requirePerfil } from "@/lib/auth";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
+import type { Resultado } from "@/lib/aviso";
 
 const vehiculoSchema = z.object({
   patente: z.string().trim().min(4, "Patente inválida").toUpperCase(),
@@ -25,9 +28,9 @@ export async function guardarVehiculo(_: FormState, formData: FormData): Promise
 }
 
 const conductorSchema = z.object({
-  nombre: z.string().trim().min(2, "Ingresa el nombre"),
-  telefono: z.string().trim().optional(),
-  licencia: z.string().trim().optional(),
+  nombre: zNombrePersona("Ingresa el nombre"),
+  telefono: zTelefonoOpcional,
+  licencia: z.string().trim().max(10, "Clase de licencia demasiado larga").optional(),
 });
 
 export async function guardarConductor(_: FormState, formData: FormData): Promise<FormState> {
@@ -41,10 +44,13 @@ export async function guardarConductor(_: FormState, formData: FormData): Promis
   return { ok: "Conductor agregado" };
 }
 
-export async function alternarActivo(tabla: "vehiculos" | "conductores" | "servicios", id: number, activo: boolean) {
+export async function alternarActivo(tabla: "vehiculos" | "conductores" | "servicios", id: number, activo: boolean): Promise<Resultado> {
   await requirePerfil(["admin"]);
+  // El argumento llega del navegador: se valida aquí y no solo por tipos
+  if (!["vehiculos", "conductores", "servicios"].includes(tabla) || typeof activo !== "boolean") return { error: "Solicitud inválida" };
   const supabase = await createClient();
-  await supabase.from(tabla).update({ activo }).eq("id", id);
+  const { error } = await supabase.from(tabla).update({ activo }).eq("id", id);
+  if (error) return { error: dbError(error.message) };
   revalidatePath(tabla === "servicios" ? "/admin/servicios" : "/admin/flota");
 }
 
@@ -76,17 +82,19 @@ const mantencionSchema = z.object({
   departamento_id: z.coerce.number().int().positive("Selecciona un departamento"),
   titulo: z.string().trim().min(3, "Ingresa el título"),
   descripcion: z.string().trim().optional(),
-  fecha_inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
-  fecha_fin: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
+  fecha_inicio: zFecha("Ingresa una fecha de inicio válida"),
+  fecha_fin: zFecha("Ingresa una fecha de término válida"),
   costo: z.coerce.number().int().min(0).default(0),
   responsable: z.string().trim().optional(),
+}).superRefine((d, ctx) => {
+  const p = validarRangoFuturo(d.fecha_inicio, d.fecha_fin);
+  if (p) ctx.addIssue({ code: "custom", message: p.mensaje, path: [p.campo === "inicio" ? "fecha_inicio" : "fecha_fin"] });
 });
 
 export async function crearMantencion(_: FormState, formData: FormData): Promise<FormState> {
   await requirePerfil(["admin"]);
   const parsed = mantencionSchema.safeParse(formToObject(formData));
   if (!parsed.success) return zodError(parsed.error, formData);
-  if (parsed.data.fecha_fin < parsed.data.fecha_inicio) return errorState("La fecha de término debe ser igual o posterior al inicio", formData);
   const supabase = await createClient();
   const { error } = await supabase.from("mantenciones").insert({ ...parsed.data, descripcion: parsed.data.descripcion ?? null, responsable: parsed.data.responsable ?? null });
   if (error) return errorState(dbError(error.message), formData);
@@ -95,10 +103,17 @@ export async function crearMantencion(_: FormState, formData: FormData): Promise
   return { ok: "Mantención programada. Las fechas quedan bloqueadas para reservas." };
 }
 
-export async function cambiarEstadoMantencion(id: number, estado: "programada" | "en_curso" | "completada" | "cancelada", costo?: number) {
+const TRANSICIONES_MANTENCION: Record<string, string[]> = { en_curso: ["programada"], completada: ["programada", "en_curso"], cancelada: ["programada", "en_curso"] };
+
+export async function cambiarEstadoMantencion(id: number, estado: "en_curso" | "completada" | "cancelada", costo?: number): Promise<Resultado> {
   await requirePerfil(["admin"]);
+  const desde = TRANSICIONES_MANTENCION[estado];
+  if (!desde) return { error: "Estado inválido" };
+  if (costo !== undefined && (!Number.isInteger(costo) || costo < 0)) return { error: "El costo debe ser un monto entero mayor o igual a 0" };
   const supabase = await createClient();
-  await supabase.from("mantenciones").update(costo === undefined ? { estado } : { estado, costo }).eq("id", id);
+  const { data, error } = await supabase.from("mantenciones").update(costo === undefined ? { estado } : { estado, costo }).eq("id", id).in("estado", desde as ("programada" | "en_curso")[]).select("id");
+  if (error) return { error: dbError(error.message) };
+  if (!data?.length) return { error: "La mantención ya cambió de estado" };
   revalidatePath("/admin/mantenciones");
   revalidatePath("/dashboard");
 }
@@ -107,7 +122,7 @@ const movimientoSchema = z.object({
   tipo: z.enum(["ingreso", "egreso"]),
   categoria: z.enum(["arriendo", "servicio_extra", "cargo", "reembolso", "reparacion", "mantencion", "dividendo", "contribucion", "transporte", "otro"]),
   monto: z.coerce.number().int().positive("Monto mayor a 0"),
-  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
+  fecha: zFecha("Ingresa una fecha válida").refine((v) => validarFechaNoFutura(v) === null, "La fecha del movimiento no puede ser futura"),
   departamento_id: z.coerce.number().int().optional(),
   descripcion: z.string().trim().optional(),
 });

@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormMessage, InputField, SubmitButton, TextareaField } from "@/components/form/fields";
 import { formatDate, hoyISO } from "@/lib/format";
+import { fechaMaximaReserva, fechaMinimaNacimiento, sumarDias } from "@/lib/fechas";
 import type { Tables } from "@/lib/supabase/database.types";
 import { agregarAcompanante, cancelarReserva, eliminarAcompanante, modificarReserva } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 export function AcompanantesPanel({ reservaId, acompanantes, editable }: { reservaId: number; acompanantes: Tables<"acompanantes">[]; editable: boolean }) {
   const [state, formAction] = useActionState(agregarAcompanante.bind(null, reservaId), undefined);
@@ -20,7 +22,7 @@ export function AcompanantesPanel({ reservaId, acompanantes, editable }: { reser
               <span className="text-muted-foreground">{a.documento}</span>
               <span className="text-muted-foreground">{a.fecha_nacimiento ? formatDate(a.fecha_nacimiento) : ""}</span>
               {editable && (
-                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => eliminarAcompanante(a.id, reservaId)}>Quitar</Button>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => conAviso(eliminarAcompanante(a.id, reservaId))}>Quitar</Button>
               )}
             </li>
           ))}
@@ -31,9 +33,9 @@ export function AcompanantesPanel({ reservaId, acompanantes, editable }: { reser
       {editable && (
         <form action={formAction} className="grid gap-3 rounded-lg border bg-muted/30 p-4 sm:grid-cols-4">
           <InputField name="nombre" label="Nombre completo" state={state} required />
-          <InputField name="documento" label="RUT o pasaporte" state={state} required />
-          <InputField name="fecha_nacimiento" label="Fecha de nacimiento" type="date" state={state} />
-          <InputField name="telefono" label="Teléfono" type="tel" state={state} />
+          <InputField name="documento" label="RUT o pasaporte" state={state} placeholder="12.345.678-9 o AB123456" maxLength={20} required />
+          <InputField name="fecha_nacimiento" label="Fecha de nacimiento" type="date" min={fechaMinimaNacimiento()} max={hoyISO()} state={state} />
+          <InputField name="telefono" label="Teléfono" type="tel" state={state} placeholder="+56 9 1234 5678" />
           <div className="flex items-center gap-3 sm:col-span-4">
             <SubmitButton variant="outline">Agregar acompañante</SubmitButton>
             <FormMessage state={state} />
@@ -63,8 +65,8 @@ export function ModificarPanel({ reservaId, inicio, fin, huespedes, capacidad, d
         {permitido && (
           <>
             <CardContent className="grid gap-3 sm:grid-cols-3">
-              <InputField name="inicio" label="Llegada" type="date" min={hoyISO()} defaultValue={inicio} state={state} required />
-              <InputField name="fin" label="Salida" type="date" min={hoyISO()} defaultValue={fin} state={state} required />
+              <InputField name="inicio" label="Llegada" type="date" min={hoyISO()} max={fechaMaximaReserva()} defaultValue={inicio} state={state} required />
+              <InputField name="fin" label="Salida" type="date" min={sumarDias(hoyISO(), 1)} defaultValue={fin} state={state} required />
               <InputField name="huespedes" label={`Huéspedes (máx. ${capacidad})`} type="number" min={1} max={capacidad} defaultValue={huespedes} state={state} />
             </CardContent>
             <CardFooter className="mt-2 flex items-center justify-between">

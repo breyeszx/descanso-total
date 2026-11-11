@@ -1,28 +1,34 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { requirePerfil } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatearRut } from "@/lib/rut";
+import { formatearTelefono } from "@/lib/contacto";
 import { formatDate } from "@/lib/format";
+import { filtroBusqueda, terminoBusqueda } from "@/lib/busqueda";
+import { paginaActual, rangoPagina, urlPagina } from "@/lib/paginacion";
+import { Paginacion } from "@/components/paginacion";
 
 export const metadata = { title: "Clientes" };
 
-export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
-  await requirePerfil(["admin"]);
+export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string; pagina?: string }> }) {
+  const sp = await searchParams;
+  const q = terminoBusqueda(sp.q);
+  const pagina = paginaActual(sp.pagina);
+
   const supabase = await createClient();
   let query = supabase
     .from("clientes")
-    .select("id, nombre, apellido, rut, email, telefono, created_at, profile_id")
+    .select("id, nombre, apellido, rut, email, telefono, created_at, profile_id", { count: "exact" })
     .order("created_at", { ascending: false })
-    .limit(100);
-  if (q) {
-    const term = `%${q}%`;
-    query = query.or(`nombre.ilike.${term},apellido.ilike.${term},email.ilike.${term},rut.ilike.${term}`);
-  }
-  const { data: clientes } = await query;
+    .order("id", { ascending: false })
+    .range(...rangoPagina(pagina));
+  const busqueda = filtroBusqueda(q, ["nombre", "apellido", "email", "rut"]);
+  if (busqueda) query = query.or(busqueda);
+  const { data: clientes, count } = await query;
+  if (pagina > 1 && !clientes?.length) redirect(urlPagina("/admin/clientes", { q }));
 
   return (
     <div className="space-y-4">
@@ -57,7 +63,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
                   </TableCell>
                   <TableCell>{formatearRut(c.rut)}</TableCell>
                   <TableCell>{c.email}</TableCell>
-                  <TableCell className="hidden md:table-cell">{c.telefono ?? "—"}</TableCell>
+                  <TableCell className="hidden md:table-cell">{formatearTelefono(c.telefono)}</TableCell>
                   <TableCell className="hidden md:table-cell">{c.profile_id ? "Sí" : "No"}</TableCell>
                   <TableCell className="hidden md:table-cell">{formatDate(c.created_at)}</TableCell>
                 </TableRow>
@@ -72,6 +78,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
           </TableBody>
         </Table>
       </div>
+      <Paginacion ruta="/admin/clientes" params={{ q }} pagina={pagina} total={count ?? 0} />
     </div>
   );
 }

@@ -4,13 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
-import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
+import type { Resultado } from "@/lib/aviso";
+import { enviarPendientesEnSegundoPlano } from "@/lib/notificaciones";
+import { refinarEstadia, zFecha, zFechaNacimiento } from "@/lib/fechas";
+import { zDocumento, zNombrePersona, zTelefonoOpcional } from "@/lib/contacto";
 
 const acompananteSchema = z.object({
-  nombre: z.string().trim().min(2, "Ingresa el nombre"),
-  documento: z.string().trim().min(5, "Ingresa RUT o pasaporte"),
-  fecha_nacimiento: z.string().optional(),
-  telefono: z.string().trim().optional(),
+  nombre: zNombrePersona("Ingresa el nombre"),
+  documento: zDocumento,
+  fecha_nacimiento: zFechaNacimiento,
+  telefono: zTelefonoOpcional,
 });
 
 export async function agregarAcompanante(reservaId: number, _: FormState, formData: FormData): Promise<FormState> {
@@ -29,9 +32,12 @@ export async function agregarAcompanante(reservaId: number, _: FormState, formDa
   return { ok: "Acompañante registrado" };
 }
 
-export async function eliminarAcompanante(id: number, reservaId: number) {
+export async function eliminarAcompanante(id: number, reservaId: number): Promise<Resultado> {
   const supabase = await createClient();
-  await supabase.from("acompanantes").delete().eq("id", id);
+  const { data, error } = await supabase.from("acompanantes").delete().eq("id", id).eq("reserva_id", reservaId).select("id");
+  if (error) return { error: dbError(error.message) };
+  // RLS no devuelve error: simplemente no borra si la reserva ya no admite cambios
+  if (!data?.length) return { error: "No se pudo quitar al acompañante: la reserva ya no admite cambios" };
   revalidatePath(`/mis-reservas/${reservaId}`);
 }
 
@@ -41,17 +47,17 @@ export async function cancelarReserva(reservaId: number, _: FormState, formData:
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancelar_reserva", { p_reserva: reservaId, p_motivo: motivo || undefined });
   if (error) return { error: dbError(error.message) };
-  await enviarPendientesSilencioso();
+  enviarPendientesEnSegundoPlano();
   revalidatePath(`/mis-reservas/${reservaId}`);
   revalidatePath("/mis-reservas");
   return { ok: "Reserva cancelada" };
 }
 
 const modificarSchema = z.object({
-  inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
-  fin: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
-  huespedes: z.coerce.number().int().min(1),
-});
+  inicio: zFecha("Ingresa una fecha de llegada válida"),
+  fin: zFecha("Ingresa una fecha de salida válida"),
+  huespedes: z.coerce.number().int().min(1, "Mínimo 1 huésped").max(20, "Máximo 20 huéspedes"),
+}).superRefine(refinarEstadia);
 
 export async function modificarReserva(reservaId: number, _: FormState, formData: FormData): Promise<FormState> {
   const parsed = modificarSchema.safeParse(formToObject(formData));

@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EstadoBadge, estadoLabel } from "@/components/estado-badge";
 import { formatCLP, formatDate } from "@/lib/format";
+import { filtroBusqueda, terminoBusqueda } from "@/lib/busqueda";
+import { paginaActual, rangoPagina, urlPagina } from "@/lib/paginacion";
+import { Paginacion } from "@/components/paginacion";
 import type { Database } from "@/lib/supabase/database.types";
 
 export const metadata = { title: "Reservas" };
@@ -12,13 +16,25 @@ export const metadata = { title: "Reservas" };
 type Estado = Database["public"]["Enums"]["estado_reserva"];
 const ESTADOS: Estado[] = ["pendiente_pago", "confirmada", "en_curso", "finalizada", "cancelada", "no_show"];
 
-export default async function ReservasAdminPage({ searchParams }: { searchParams: Promise<{ q?: string; estado?: string }> }) {
-  const { q, estado } = await searchParams;
+export default async function ReservasAdminPage({ searchParams }: { searchParams: Promise<{ q?: string; estado?: string; pagina?: string }> }) {
+  const sp = await searchParams;
+  const q = terminoBusqueda(sp.q);
+  const estado = ESTADOS.find((e) => e === sp.estado);
+  const pagina = paginaActual(sp.pagina);
+  const filtros = { q, estado };
+
   const supabase = await createClient();
-  let query = supabase.from("vw_reservas").select("*").order("fecha_inicio", { ascending: false }).limit(100);
-  if (estado && ESTADOS.includes(estado as Estado)) query = query.eq("estado", estado as Estado);
-  if (q) query = query.or(`codigo.ilike.%${q}%,cliente_nombre.ilike.%${q}%,cliente_apellido.ilike.%${q}%,cliente_email.ilike.%${q}%,departamento_nombre.ilike.%${q}%`);
-  const { data: reservas } = await query;
+  let query = supabase
+    .from("vw_reservas")
+    .select("*", { count: "exact" })
+    .order("fecha_inicio", { ascending: false })
+    .order("id", { ascending: false })
+    .range(...rangoPagina(pagina));
+  if (estado) query = query.eq("estado", estado);
+  const busqueda = filtroBusqueda(q, ["codigo", "cliente_nombre", "cliente_apellido", "cliente_email", "departamento_nombre"]);
+  if (busqueda) query = query.or(busqueda);
+  const { data: reservas, count } = await query;
+  if (pagina > 1 && !reservas?.length) redirect(urlPagina("/admin/reservas", filtros));
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,6 +88,7 @@ export default async function ReservasAdminPage({ searchParams }: { searchParams
           </TableBody>
         </Table>
       </div>
+      <Paginacion ruta="/admin/reservas" params={filtros} pagina={pagina} total={count ?? 0} />
     </div>
   );
 }

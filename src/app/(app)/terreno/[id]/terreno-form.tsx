@@ -67,7 +67,7 @@ export function TerrenoForm({ modo, reserva: r, acompanantes, items, estadoEntra
             {faltan > 0 && (
               <form action={acAction} className="grid gap-2 rounded-lg border bg-muted/30 p-3 sm:grid-cols-3">
                 <InputField name="nombre" label="Nombre" state={acState} required />
-                <InputField name="documento" label="RUT / pasaporte" state={acState} required />
+                <InputField name="documento" label="RUT / pasaporte" state={acState} placeholder="12.345.678-9 o AB123456" maxLength={20} required />
                 <div className="flex items-end gap-2">
                   <SubmitButton variant="outline">Agregar</SubmitButton>
                   <FormMessage state={acState} />
@@ -158,7 +158,7 @@ export function TerrenoForm({ modo, reserva: r, acompanantes, items, estadoEntra
               </div>
               <SelectField name="cobro_medio" label="Medio de pago" state={state} options={[{ value: "efectivo", label: "Efectivo" }, { value: "transferencia", label: "Transferencia" }, { value: "webpay", label: "Webpay (POS / enlace)" }]} />
             </div>
-            {saldoFinal - cobro > 0 && <p className="text-xs text-amber-700 dark:text-amber-400">Quedará un saldo pendiente de {formatCLP(saldoFinal - cobro)}.</p>}
+            {saldoFinal - cobro > 0 && <p className="text-xs text-aviso">Quedará un saldo pendiente de {formatCLP(saldoFinal - cobro)}.</p>}
             <Button type="button" variant="ghost" size="sm" className="w-fit" onClick={() => setCobro(saldoFinal)}>Cobrar saldo completo</Button>
           </CardContent>
         </Card>

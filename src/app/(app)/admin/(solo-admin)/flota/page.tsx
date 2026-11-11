@@ -1,3 +1,4 @@
+import { formatearTelefono } from "@/lib/contacto";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -48,7 +49,7 @@ export default async function FlotaPage() {
                 {conductores?.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell>{c.nombre}</TableCell>
-                    <TableCell>{c.telefono ?? "—"}</TableCell>
+                    <TableCell>{formatearTelefono(c.telefono)}</TableCell>
                     <TableCell>{c.licencia ?? "—"}</TableCell>
                     <TableCell><ActivoToggle tabla="conductores" id={c.id} activo={c.activo} /></TableCell>
                   </TableRow>

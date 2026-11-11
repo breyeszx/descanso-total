@@ -59,7 +59,7 @@ export function AuthForm({ modo, action, next }: Props) {
             />
           </div>
           {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
-          {state?.ok && <p className="text-sm text-green-600">{state.ok}</p>}
+          {state?.ok && <p className="text-sm text-exito">{state.ok}</p>}
         </CardContent>
         <CardFooter className="mt-4 flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={pending}>

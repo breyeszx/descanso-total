@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePerfil } from "@/lib/auth";
 import { appUrl, webpayTransaction } from "@/lib/webpay";
-import { procesarNotificacionesPendientes } from "@/lib/notificaciones";
 import { dbError, type FormState } from "@/lib/form";
 
 /**
@@ -29,7 +28,10 @@ export async function iniciarPagoWebpay(reservaId: number, concepto: "anticipo" 
   if (monto <= 0) return { error: "No hay monto pendiente por pagar" };
 
   // La reserva ya fue validada como propia vía RLS; el pago lo crea el servidor.
+  // Un intento anterior sin terminar queda anulado: si el cliente lo paga igual desde otra pestaña,
+  // el retorno no lo confirma y Transbank lo reversa. El índice único cubre el doble clic simultáneo.
   const admin = createAdminClient();
+  await admin.from("pagos").update({ estado: "anulado", notas: "Reemplazado por un nuevo intento de pago" }).eq("reserva_id", reservaId).eq("medio", "webpay").eq("estado", "pendiente");
   const { data: pago, error } = await admin
     .from("pagos")
     .insert({ reserva_id: reservaId, concepto, medio: "webpay", monto, estado: "pendiente", registrado_por: perfil.id })
@@ -47,14 +49,5 @@ export async function iniciarPagoWebpay(reservaId: number, concepto: "anticipo" 
     if (e && typeof e === "object" && "digest" in e) throw e; // redirect() de Next
     await admin.from("pagos").update({ estado: "anulado", notas: "Error al crear transacción Webpay" }).eq("id", pago.id);
     return { error: "No se pudo conectar con Webpay. Intenta nuevamente en unos minutos." };
-  }
-}
-
-/** Reenvía las notificaciones pendientes tras una acción del usuario (sin bloquear el flujo si falla). */
-export async function enviarPendientesSilencioso() {
-  try {
-    await procesarNotificacionesPendientes(10);
-  } catch (e) {
-    console.error("notificaciones:", e);
   }
 }

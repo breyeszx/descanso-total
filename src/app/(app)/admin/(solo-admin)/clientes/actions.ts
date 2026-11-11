@@ -4,26 +4,23 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { requirePerfil } from "@/lib/auth";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
-import { normalizarRut, validarRut } from "@/lib/rut";
+import { zEmail, zNombrePersona, zRutOpcional, zTelefonoOpcional } from "@/lib/contacto";
 
 const schema = z.object({
-  nombre: z.string().trim().min(2, "Ingresa el nombre"),
-  apellido: z.string().trim().optional(),
-  rut: z
-    .string()
-    .trim()
-    .optional()
-    .transform((v) => (v ? normalizarRut(v) : null))
-    .refine((v) => v === null || validarRut(v), "RUT inválido"),
-  email: z.string().trim().email("Correo inválido"),
-  telefono: z.string().trim().optional(),
+  nombre: zNombrePersona("Ingresa el nombre"),
+  apellido: zNombrePersona("Ingresa el apellido").optional(),
+  rut: zRutOpcional,
+  email: zEmail(),
+  telefono: zTelefonoOpcional,
   direccion: z.string().trim().optional(),
   pais: z.string().trim().default("Chile"),
   notas: z.string().trim().optional(),
 });
 
 export async function guardarCliente(id: number | null, _: FormState, formData: FormData): Promise<FormState> {
+  await requirePerfil(["admin"]);
   const parsed = schema.safeParse(formToObject(formData));
   if (!parsed.success) return zodError(parsed.error, formData);
 

@@ -130,7 +130,7 @@ export default async function ReservaPage({ params, searchParams }: { params: Pr
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             {actas.map((a) => (
-              <Button key={a.id} variant="outline" render={<a href={`/api/actas/${a.id}`} target="_blank" rel="noopener" />} disabled={!a.pdf_path}>
+              <Button key={a.id} variant="outline" render={<a href={`/api/actas/${a.id}`} target="_blank" rel="noopener" />}>
                 Acta de {a.tipo === "check_in" ? "check-in" : "check-out"} · {formatDateTime(a.fecha)}
               </Button>
             ))}

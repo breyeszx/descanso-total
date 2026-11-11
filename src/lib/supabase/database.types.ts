@@ -339,14 +339,14 @@ isOneToOne: false
                   ]
                 },"notificaciones": {
                   Row: {
-                    "asunto": string,"created_at": string,"destinatario": string,"enviada_at": string | null,"error": string | null,"estado": Database["public"]['Enums']["estado_notificacion"],"id": number,"payload": NonNullable<Json>,"programada_para": string,"proveedor_id": string | null,"reserva_id": number | null,"tipo": Database["public"]['Enums']["tipo_notificacion"]
+                    "asunto": string,"created_at": string,"destinatario": string,"enviada_at": string | null,"error": string | null,"estado": Database["public"]['Enums']["estado_notificacion"],"id": number,"intentos": number,"payload": NonNullable<Json>,"programada_para": string,"proveedor_id": string | null,"reserva_id": number | null,"tipo": Database["public"]['Enums']["tipo_notificacion"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "asunto": string,"created_at"?: string,"destinatario": string,"enviada_at"?: string | null,"error"?: string | null,"estado"?: Database["public"]['Enums']["estado_notificacion"],"id"?: never,"payload"?: NonNullable<Json>,"programada_para"?: string,"proveedor_id"?: string | null,"reserva_id"?: number | null,"tipo": Database["public"]['Enums']["tipo_notificacion"]
+                    "asunto": string,"created_at"?: string,"destinatario": string,"enviada_at"?: string | null,"error"?: string | null,"estado"?: Database["public"]['Enums']["estado_notificacion"],"id"?: never,"intentos"?: number,"payload"?: NonNullable<Json>,"programada_para"?: string,"proveedor_id"?: string | null,"reserva_id"?: number | null,"tipo": Database["public"]['Enums']["tipo_notificacion"]
                   }
                   Update: {
-                    "asunto"?: string,"created_at"?: string,"destinatario"?: string,"enviada_at"?: string | null,"error"?: string | null,"estado"?: Database["public"]['Enums']["estado_notificacion"],"id"?: never,"payload"?: NonNullable<Json>,"programada_para"?: string,"proveedor_id"?: string | null,"reserva_id"?: number | null,"tipo"?: Database["public"]['Enums']["tipo_notificacion"]
+                    "asunto"?: string,"created_at"?: string,"destinatario"?: string,"enviada_at"?: string | null,"error"?: string | null,"estado"?: Database["public"]['Enums']["estado_notificacion"],"id"?: never,"intentos"?: number,"payload"?: NonNullable<Json>,"programada_para"?: string,"proveedor_id"?: string | null,"reserva_id"?: number | null,"tipo"?: Database["public"]['Enums']["tipo_notificacion"]
                   }
                   Relationships: [
                     {
@@ -730,6 +730,9 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"encolar_y_expirar":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "encolar_notificaciones_programadas":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
@@ -744,6 +747,12 @@ isOneToOne: false
                            },
 "mantencion_solapa":
 { Args: { "p_departamento": number,"p_fin": string,"p_inicio": string }; Returns: boolean
+                           },
+"registrar_acta":
+{ Args: { "p_reserva": number,"p_tipo": Database["public"]['Enums']["tipo_acta"],"p_checklist"?: Json,"p_observaciones"?: string,"p_conformidad"?: boolean,"p_cobro_monto"?: number,"p_cobro_medio"?: Database["public"]['Enums']["medio_pago"],"p_multa_monto"?: number,"p_multa_descripcion"?: string }; Returns: number
+                           },
+"registrar_movimiento_inventario":
+{ Args: { "p_item": number,"p_tipo": Database["public"]['Enums']["tipo_movimiento_inventario"],"p_cantidad": number,"p_costo"?: number,"p_descripcion"?: string }; Returns: number
                            },
 "modificar_reserva":
 { Args: { "p_fin": string,"p_huespedes"?: number,"p_inicio": string,"p_reserva": number }; Returns: undefined

@@ -1,3 +1,5 @@
+import { MARCA } from "@/lib/marca";
+
 /**
  * Envío de correo transaccional con SendGrid (API REST v3).
  * Sin SENDGRID_API_KEY, en desarrollo se simula el envío (se registra en consola).
@@ -5,6 +7,11 @@
 export type Correo = { to: string; subject: string; html: string; text?: string };
 
 export type ResultadoEnvio = { ok: true; id: string } | { ok: false; error: string };
+
+/** ¿Se puede enviar correo? En producción solo con SENDGRID_API_KEY; en desarrollo se simula. */
+export function correoDisponible() {
+  return !!process.env.SENDGRID_API_KEY || process.env.NODE_ENV !== "production";
+}
 
 export async function enviarCorreo(c: Correo): Promise<ResultadoEnvio> {
   const apiKey = process.env.SENDGRID_API_KEY;
@@ -37,12 +44,12 @@ export async function enviarCorreo(c: Correo): Promise<ResultadoEnvio> {
 
 /** Plantilla base en HTML con la identidad de Descanso Total. */
 export function plantilla(titulo: string, cuerpoHtml: string) {
-  return `<!doctype html><html lang="es"><body style="margin:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;color:#18181b">
+  return `<!doctype html><html lang="es"><body style="margin:0;background:${MARCA.fondo};font-family:Arial,Helvetica,sans-serif;color:${MARCA.texto}">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px">
     <table role="presentation" width="100%" style="max-width:560px;background:#fff;border-radius:12px;overflow:hidden">
-      <tr><td style="background:#0f766e;color:#fff;padding:20px 24px;font-size:18px;font-weight:bold">Descanso Total</td></tr>
+      <tr><td style="background:${MARCA.primario};color:#fff;padding:20px 24px;font-size:18px;font-weight:bold">Descanso Total</td></tr>
       <tr><td style="padding:24px"><h1 style="font-size:20px;margin:0 0 12px">${titulo}</h1>${cuerpoHtml}</td></tr>
-      <tr><td style="padding:16px 24px;font-size:12px;color:#71717a;border-top:1px solid #e4e4e7">Descanso Total S.A. · Este correo se generó automáticamente, no respondas a esta dirección.</td></tr>
+      <tr><td style="padding:16px 24px;font-size:12px;color:${MARCA.tenue};border-top:1px solid ${MARCA.borde}">Descanso Total S.A. · Este correo se generó automáticamente, no respondas a esta dirección.</td></tr>
     </table>
   </td></tr></table></body></html>`;
 }

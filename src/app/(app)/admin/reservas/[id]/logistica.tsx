@@ -5,12 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormMessage, InputField, SelectField, SubmitButton } from "@/components/form/fields";
 import { EstadoBadge } from "@/components/estado-badge";
-import { formatCLP, formatDateTime } from "@/lib/format";
+import { formatCLP, formatDateTime, hoyISO } from "@/lib/format";
+import { sumarDias } from "@/lib/fechas";
 import { agregarServicioReserva, cambiarEstadoTransporte, programarTransporte } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 type Transporte = { id: number; tipo: string; fecha_hora: string; origen: string | null; destino: string | null; pasajeros: number; estado: string; vehiculos: { patente: string } | null; conductores: { nombre: string; telefono: string | null } | null };
 type Props = {
   reservaId: number;
+  /** Fechas de la estadía, para acotar el selector de fecha y hora */
+  inicio: string;
+  fin: string;
   editable: boolean;
   transportes: Transporte[];
   vehiculos: { id: number; patente: string; capacidad: number }[];
@@ -20,7 +25,9 @@ type Props = {
 
 const TIPO: Record<string, string> = { llegada: "Llegada", salida: "Salida", tour: "Tour" };
 
-export function LogisticaPanel({ reservaId, editable, transportes, vehiculos, conductores, servicios }: Props) {
+export function LogisticaPanel({ reservaId, inicio, fin, editable, transportes, vehiculos, conductores, servicios }: Props) {
+  const minFechaHora = `${[sumarDias(inicio, -1), hoyISO()].sort()[1]}T00:00`;
+  const maxFechaHora = `${sumarDias(fin, 1)}T23:59`;
   const [tState, tAction] = useActionState(programarTransporte.bind(null, reservaId), undefined);
   const [sState, sAction] = useActionState(agregarServicioReserva.bind(null, reservaId), undefined);
 
@@ -41,8 +48,8 @@ export function LogisticaPanel({ reservaId, editable, transportes, vehiculos, co
                 <EstadoBadge estado={t.estado === "programado" ? "programada" : t.estado === "completado" ? "completada" : t.estado === "cancelado" ? "cancelada" : t.estado} />
                 {editable && t.estado === "programado" && (
                   <span className="flex gap-1">
-                    <Button size="sm" variant="outline" onClick={() => cambiarEstadoTransporte(t.id, reservaId, "completado")}>Completado</Button>
-                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => cambiarEstadoTransporte(t.id, reservaId, "cancelado")}>Cancelar</Button>
+                    <Button size="sm" variant="outline" onClick={() => conAviso(cambiarEstadoTransporte(t.id, reservaId, "completado"))}>Completado</Button>
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => conAviso(cambiarEstadoTransporte(t.id, reservaId, "cancelado"))}>Cancelar</Button>
                   </span>
                 )}
               </li>
@@ -56,7 +63,7 @@ export function LogisticaPanel({ reservaId, editable, transportes, vehiculos, co
           <>
             <form action={tAction} className="grid gap-2 rounded-lg border bg-muted/30 p-3 sm:grid-cols-3">
               <SelectField name="tipo" label="Traslado" state={tState} options={[{ value: "llegada", label: "Llegada" }, { value: "salida", label: "Salida" }, { value: "tour", label: "Tour" }]} />
-              <InputField name="fecha_hora" label="Fecha y hora" type="datetime-local" state={tState} required />
+              <InputField name="fecha_hora" label="Fecha y hora" type="datetime-local" min={minFechaHora} max={maxFechaHora} state={tState} required />
               <InputField name="pasajeros" label="Pasajeros" type="number" min={1} defaultValue={1} state={tState} />
               <InputField name="origen" label="Origen" state={tState} placeholder="Aeropuerto, terminal..." />
               <InputField name="destino" label="Destino" state={tState} placeholder="Departamento, tour..." />

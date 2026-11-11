@@ -40,8 +40,10 @@ export function dbError(message: string): string {
   if (message.includes("clientes_rut_key")) return "Ya existe un cliente con ese RUT.";
   if (message.includes("clientes_email_idx")) return "Ya existe un cliente con ese correo.";
   if (message.includes("departamentos_codigo_key")) return "Ya existe un departamento con ese código.";
+  if (message.includes("pagos_un_webpay_pendiente")) return "Ya hay un pago Webpay en curso para esta reserva. Espera a que termine o inténtalo nuevamente.";
+  if (message.includes("actas_reserva_id_tipo_key")) return "Esta acta ya fue registrada.";
   if (message.includes("row-level security")) return "No tienes permisos para realizar esta acción.";
   // Mensajes de negocio lanzados por triggers/RPC (raise exception ... errcode P0001) se muestran tal cual
-  if (/mantenci[oó]n|reservas activas|disponible|anticipaci[oó]n|permiso|estado actual|hu[eé]spedes|fecha/i.test(message)) return message.replace(/^P0001:\s*/, "");
+  if (/mantenci[oó]n|reservas activas|disponible|anticipaci[oó]n|permiso|estado actual|hu[eé]spedes|fecha|pendientes de pago|reembolso|conformidad|no pertenece|unidad|no encontrad/i.test(message)) return message.replace(/^P0001:\s*/, "");
   return "Ocurrió un error al guardar. Intenta nuevamente.";
 }

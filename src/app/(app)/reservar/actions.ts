@@ -4,16 +4,17 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
-import { enviarPendientesSilencioso } from "@/app/(app)/pagos/actions";
+import { refinarEstadia, zFecha } from "@/lib/fechas";
+import { enviarPendientesEnSegundoPlano } from "@/lib/notificaciones";
 
 const schema = z.object({
   departamento_id: z.coerce.number().int().positive(),
-  inicio: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de llegada inválida"),
-  fin: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de salida inválida"),
-  huespedes: z.coerce.number().int().min(1, "Mínimo 1 huésped"),
+  inicio: zFecha("Ingresa una fecha de llegada válida"),
+  fin: zFecha("Ingresa una fecha de salida válida"),
+  huespedes: z.coerce.number().int().min(1, "Mínimo 1 huésped").max(20, "Máximo 20 huéspedes"),
   notas: z.string().trim().max(500).optional(),
   acepta: z.literal("on", { error: "Debes aceptar las políticas de reserva" }),
-});
+}).superRefine(refinarEstadia);
 
 export async function crearReserva(_: FormState, formData: FormData): Promise<FormState> {
   const parsed = schema.safeParse(formToObject(formData));
@@ -36,6 +37,6 @@ export async function crearReserva(_: FormState, formData: FormData): Promise<Fo
     p_notas: parsed.data.notas ?? undefined,
   });
   if (error) return errorState(dbError(error.message), formData);
-  await enviarPendientesSilencioso();
+  enviarPendientesEnSegundoPlano();
   redirect(`/mis-reservas/${id}?nueva=1`);
 }

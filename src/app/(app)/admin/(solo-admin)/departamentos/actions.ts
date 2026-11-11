@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { zFechaNoFutura } from "@/lib/fechas";
 import { createClient } from "@/lib/supabase/server";
+import { requirePerfil } from "@/lib/auth";
+import { MAX_FOTOS_POR_SUBIDA, RUTA_FOTO } from "@/lib/fotos";
+import type { Resultado } from "@/lib/aviso";
 import { dbError, errorState, formToObject, zodError, type FormState } from "@/lib/form";
 
 const depSchema = z.object({
@@ -27,6 +31,7 @@ function revalidarDep(id?: number) {
 }
 
 export async function guardarDepartamento(id: number | null, _: FormState, formData: FormData): Promise<FormState> {
+  await requirePerfil(["admin"]);
   const parsed = depSchema.safeParse(formToObject(formData));
   if (!parsed.success) return zodError(parsed.error, formData);
   const { amenidades, ...rest } = parsed.data;
@@ -49,43 +54,54 @@ export async function guardarDepartamento(id: number | null, _: FormState, formD
 }
 
 // ---------------- Fotos ----------------
-const MAX_FOTO = 5 * 1024 * 1024;
+/**
+ * Registra fotos que el navegador ya subió directo al bucket "departamentos".
+ * Los archivos no pasan por esta acción: las Server Actions aceptan 1 MB por defecto y Vercel corta en 4,5 MB.
+ */
+export async function registrarFotos(depId: number, paths: string[]): Promise<FormState> {
+  await requirePerfil(["admin"]);
+  if (!Array.isArray(paths) || paths.length === 0) return { error: "Selecciona al menos una imagen" };
+  if (paths.length > MAX_FOTOS_POR_SUBIDA) return { error: `Máximo ${MAX_FOTOS_POR_SUBIDA} fotos por subida` };
+  if (paths.some((p) => typeof p !== "string" || RUTA_FOTO.exec(p)?.[1] !== String(depId))) return { error: "Ruta de foto inválida" };
 
-export async function subirFoto(depId: number, _: FormState, formData: FormData): Promise<FormState> {
-  const archivos = formData.getAll("fotos").filter((f): f is File => f instanceof File && f.size > 0);
-  if (!archivos.length) return { error: "Selecciona al menos una imagen" };
   const supabase = await createClient();
   const { count } = await supabase.from("departamento_fotos").select("id", { count: "exact", head: true }).eq("departamento_id", depId);
-  let orden = count ?? 0;
-  for (const f of archivos) {
-    if (!f.type.startsWith("image/")) return { error: `"${f.name}" no es una imagen` };
-    if (f.size > MAX_FOTO) return { error: `"${f.name}" supera 5 MB` };
-    const ext = f.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const path = `${depId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("departamentos").upload(path, f, { contentType: f.type });
-    if (upErr) return { error: "No se pudo subir la imagen: " + upErr.message };
-    const { error } = await supabase
-      .from("departamento_fotos")
-      .insert({ departamento_id: depId, storage_path: path, orden: orden++, es_portada: orden === 1 });
-    if (error) return errorState(dbError(error.message), formData);
+  const base = count ?? 0;
+  const { error } = await supabase
+    .from("departamento_fotos")
+    .insert(paths.map((storage_path, i) => ({ departamento_id: depId, storage_path, orden: base + i, es_portada: base + i === 0 })));
+  if (error) {
+    await supabase.storage.from("departamentos").remove(paths); // no dejar archivos huérfanos
+    return { error: dbError(error.message) };
   }
   revalidarDep(depId);
-  return { ok: `${archivos.length} foto(s) subida(s)` };
+  return { ok: paths.length === 1 ? "Foto subida" : `${paths.length} fotos subidas` };
 }
 
-export async function eliminarFoto(fotoId: number, depId: number) {
+export async function eliminarFoto(fotoId: number, depId: number): Promise<Resultado> {
+  await requirePerfil(["admin"]);
   const supabase = await createClient();
-  const { data: foto } = await supabase.from("departamento_fotos").select("storage_path").eq("id", fotoId).single();
-  if (!foto) return;
+  const { data: foto, error } = await supabase.from("departamento_fotos").delete().eq("id", fotoId).eq("departamento_id", depId).select("storage_path, es_portada").maybeSingle();
+  if (error) return { error: dbError(error.message) };
+  if (!foto) return { error: "La foto ya no existe" };
+  // Primero la fila, después el archivo: si falla el borrado en Storage solo queda un archivo sin uso
   await supabase.storage.from("departamentos").remove([foto.storage_path]);
-  await supabase.from("departamento_fotos").delete().eq("id", fotoId);
+  if (foto.es_portada) {
+    const { data: sig } = await supabase.from("departamento_fotos").select("id").eq("departamento_id", depId).order("orden").limit(1).maybeSingle();
+    if (sig) await supabase.from("departamento_fotos").update({ es_portada: true }).eq("id", sig.id);
+  }
   revalidarDep(depId);
 }
 
-export async function marcarPortada(fotoId: number, depId: number) {
+export async function marcarPortada(fotoId: number, depId: number): Promise<Resultado> {
+  await requirePerfil(["admin"]);
   const supabase = await createClient();
-  await supabase.from("departamento_fotos").update({ es_portada: false }).eq("departamento_id", depId);
-  await supabase.from("departamento_fotos").update({ es_portada: true }).eq("id", fotoId);
+  const { data: foto } = await supabase.from("departamento_fotos").select("id").eq("id", fotoId).eq("departamento_id", depId).maybeSingle();
+  if (!foto) return { error: "La foto ya no existe" };
+  // Se marca la nueva antes de desmarcar el resto: nunca queda el departamento sin portada
+  const { error } = await supabase.from("departamento_fotos").update({ es_portada: true }).eq("id", fotoId);
+  if (error) return { error: dbError(error.message) };
+  await supabase.from("departamento_fotos").update({ es_portada: false }).eq("departamento_id", depId).neq("id", fotoId);
   revalidarDep(depId);
 }
 
@@ -96,10 +112,11 @@ const itemSchema = z.object({
   descripcion: z.string().trim().optional(),
   cantidad: z.coerce.number().int().min(0),
   valor_unitario: z.coerce.number().int().min(0, "Valor inválido"),
-  fecha_adquisicion: z.string().optional(),
+  fecha_adquisicion: zFechaNoFutura("La fecha de adquisición"),
 });
 
 export async function guardarItem(depId: number, itemId: number | null, _: FormState, formData: FormData): Promise<FormState> {
+  await requirePerfil(["admin"]);
   const parsed = itemSchema.safeParse(formToObject(formData));
   if (!parsed.success) return zodError(parsed.error, formData);
   const datos = {
@@ -127,33 +144,16 @@ const movSchema = z.object({
 });
 
 export async function registrarMovimiento(itemId: number, _: FormState, formData: FormData): Promise<FormState> {
+  await requirePerfil(["admin"]);
   const parsed = movSchema.safeParse(formToObject(formData));
   if (!parsed.success) return zodError(parsed.error, formData);
   const { tipo, cantidad, costo, descripcion } = parsed.data;
+  // Movimiento, stock, estado y egreso por reparación se guardan en una sola transacción
   const supabase = await createClient();
-  const { data: item } = await supabase.from("inventario_items").select("id, departamento_id, cantidad, nombre").eq("id", itemId).single();
-  if (!item) return { error: "Ítem no encontrado" };
-
-  const { error: movErr } = await supabase
-    .from("inventario_movimientos")
-    .insert({ item_id: itemId, tipo, cantidad, costo, descripcion: descripcion ?? null });
-  if (movErr) return errorState(dbError(movErr.message), formData);
-
-  const nuevaCantidad = tipo === "alta" ? item.cantidad + cantidad : tipo === "baja" ? Math.max(0, item.cantidad - cantidad) : item.cantidad;
-  const estado = tipo === "deterioro" ? "deteriorado" : tipo === "reparacion" ? "bueno" : nuevaCantidad === 0 ? "baja" : "bueno";
-  const { error } = await supabase.from("inventario_items").update({ cantidad: nuevaCantidad, estado }).eq("id", itemId);
+  const { data: depId, error } = await supabase.rpc("registrar_movimiento_inventario", { p_item: itemId, p_tipo: tipo, p_cantidad: cantidad, p_costo: costo, p_descripcion: descripcion });
   if (error) return errorState(dbError(error.message), formData);
-
-  if (tipo === "reparacion" && costo > 0) {
-    await supabase.from("movimientos_financieros").insert({
-      tipo: "egreso",
-      categoria: "reparacion",
-      monto: costo,
-      descripcion: `Reparación: ${item.nombre}${descripcion ? " – " + descripcion : ""}`,
-      departamento_id: item.departamento_id,
-    });
-  }
-  revalidarDep(item.departamento_id);
+  revalidarDep(depId);
   revalidatePath(`/admin/inventario/${itemId}`);
+  revalidatePath("/admin/finanzas");
   return { ok: "Movimiento registrado" };
 }

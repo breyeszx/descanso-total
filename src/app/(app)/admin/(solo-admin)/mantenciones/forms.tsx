@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FormMessage, InputField, SelectField, SubmitButton, TextareaField } from "@/components/form/fields";
 import { hoyISO } from "@/lib/format";
 import { cambiarEstadoMantencion, crearMantencion } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 export function MantencionForm({ departamentos }: { departamentos: { id: number; codigo: string; nombre: string }[] }) {
   const [state, action] = useActionState(crearMantencion, undefined);
@@ -26,17 +27,17 @@ export function EstadoMantencion({ id, estado, costo }: { id: number; estado: st
   if (estado === "completada" || estado === "cancelada") return null;
   return (
     <div className="flex justify-end gap-1">
-      {estado === "programada" && <Button size="sm" variant="outline" onClick={() => cambiarEstadoMantencion(id, "en_curso")}>Iniciar</Button>}
+      {estado === "programada" && <Button size="sm" variant="outline" onClick={() => conAviso(cambiarEstadoMantencion(id, "en_curso"))}>Iniciar</Button>}
       <Button
         size="sm"
         onClick={() => {
           const v = prompt("Costo final de la mantención (CLP). Se registrará como egreso:", String(costo));
-          if (v !== null) cambiarEstadoMantencion(id, "completada", Math.max(0, Number(v) || 0));
+          if (v !== null) conAviso(cambiarEstadoMantencion(id, "completada", Math.max(0, Math.round(Number(v)) || 0)), "Mantención completada");
         }}
       >
         Completar
       </Button>
-      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { if (confirm("¿Cancelar esta mantención?")) cambiarEstadoMantencion(id, "cancelada"); }}>Cancelar</Button>
+      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => { if (confirm("¿Cancelar esta mantención?")) conAviso(cambiarEstadoMantencion(id, "cancelada")); }}>Cancelar</Button>
     </div>
   );
 }

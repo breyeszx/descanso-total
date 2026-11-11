@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Buscador } from "@/components/buscador";
 import { DepartamentoCard } from "@/components/departamento-card";
-import { buscarDepartamentos, busquedaQuery, busquedaValida, type Busqueda } from "@/lib/catalogo";
+import { buscarDepartamentos, busquedaQuery, busquedaValida, problemaBusqueda, type Busqueda } from "@/lib/catalogo";
 import { formatDate } from "@/lib/format";
 
 export const metadata = { title: "Departamentos" };
@@ -14,6 +14,7 @@ export default async function DepartamentosPage({ searchParams }: { searchParams
     buscarDepartamentos(b),
   ]);
   const conFechas = busquedaValida(b);
+  const problema = problemaBusqueda(b);
   const zonaNombre = b.zona ? zonas?.find((z) => String(z.id) === b.zona)?.nombre : undefined;
 
   return (
@@ -27,6 +28,11 @@ export default async function DepartamentosPage({ searchParams }: { searchParams
         </p>
       </div>
       <Buscador zonas={zonas ?? []} valores={b} compacto />
+      {problema && (
+        <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {problema}. Se muestran todos los departamentos sin filtrar por fechas.
+        </p>
+      )}
       {deps.length === 0 ? (
         <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">
           No hay departamentos disponibles para esa búsqueda. Prueba con otras fechas u otra zona.

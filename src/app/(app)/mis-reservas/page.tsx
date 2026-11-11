@@ -38,7 +38,7 @@ export default async function MisReservasPage() {
                 <p className="text-sm text-muted-foreground">{r.departamentos?.zonas?.nombre} · {formatDate(r.fecha_inicio)} → {formatDate(r.fecha_fin)}</p>
                 <div className="flex justify-between text-sm">
                   <span>Total {formatCLP(r.monto_total)}</span>
-                  <span className={Number(r.saldo_pendiente) > 0 ? "text-amber-700" : "text-green-700"}>
+                  <span className={Number(r.saldo_pendiente) > 0 ? "text-aviso" : "text-exito"}>
                     {r.estado === "pendiente_pago" ? `Anticipo pendiente ${formatCLP(r.monto_anticipo)}` : `Saldo ${formatCLP(r.saldo_pendiente)}`}
                   </span>
                 </div>

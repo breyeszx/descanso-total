@@ -1,4 +1,5 @@
 import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { MARCA } from "@/lib/marca";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
 
 export type ChecklistItem = { item_id: number | null; nombre: string; estado: "bueno" | "danado" | "faltante"; observacion?: string; cargo?: number };
@@ -21,27 +22,27 @@ export type ActaData = {
 };
 
 const s = StyleSheet.create({
-  page: { padding: 36, fontSize: 10, fontFamily: "Helvetica", color: "#18181b" },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderBottom: "2 solid #0f766e", paddingBottom: 8, marginBottom: 14 },
-  brand: { fontSize: 16, fontFamily: "Helvetica-Bold", color: "#0f766e" },
+  page: { padding: 36, fontSize: 10, fontFamily: "Helvetica", color: MARCA.texto },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderBottom: `2 solid ${MARCA.primario}`, paddingBottom: 8, marginBottom: 14 },
+  brand: { fontSize: 16, fontFamily: "Helvetica-Bold", color: MARCA.primario },
   title: { fontSize: 13, fontFamily: "Helvetica-Bold" },
   section: { marginBottom: 10 },
-  h2: { fontSize: 11, fontFamily: "Helvetica-Bold", marginBottom: 4, color: "#0f766e" },
+  h2: { fontSize: 11, fontFamily: "Helvetica-Bold", marginBottom: 4, color: MARCA.primario },
   row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 2 },
   grid: { flexDirection: "row", gap: 16 },
   col: { flex: 1 },
-  muted: { color: "#71717a" },
-  table: { border: "1 solid #e4e4e7", borderRadius: 4 },
-  tr: { flexDirection: "row", borderBottom: "1 solid #e4e4e7", paddingVertical: 3, paddingHorizontal: 4 },
-  th: { fontFamily: "Helvetica-Bold", backgroundColor: "#f4f4f5" },
+  muted: { color: MARCA.tenue },
+  table: { border: `1 solid ${MARCA.borde}`, borderRadius: 4 },
+  tr: { flexDirection: "row", borderBottom: `1 solid ${MARCA.borde}`, paddingVertical: 3, paddingHorizontal: 4 },
+  th: { fontFamily: "Helvetica-Bold", backgroundColor: MARCA.superficie },
   c1: { flex: 3 },
   c2: { flex: 1.2 },
   c3: { flex: 3 },
   c4: { flex: 1.2, textAlign: "right" },
   total: { fontFamily: "Helvetica-Bold", fontSize: 11 },
   firmaBox: { marginTop: 14, flexDirection: "row", gap: 24 },
-  firma: { width: 200, height: 70, borderBottom: "1 solid #18181b" },
-  footer: { position: "absolute", bottom: 24, left: 36, right: 36, fontSize: 8, color: "#71717a", textAlign: "center" },
+  firma: { width: 200, height: 70, borderBottom: `1 solid ${MARCA.texto}` },
+  footer: { position: "absolute", bottom: 24, left: 36, right: 36, fontSize: 8, color: MARCA.tenue, textAlign: "center" },
 });
 
 const ESTADO: Record<ChecklistItem["estado"], string> = { bueno: "Bueno", danado: "Dañado", faltante: "Faltante" };

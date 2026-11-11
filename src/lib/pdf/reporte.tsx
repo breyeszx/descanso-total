@@ -1,23 +1,24 @@
 import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { MARCA } from "@/lib/marca";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
 import { MESES, type Reporte } from "@/lib/reportes";
 
 const s = StyleSheet.create({
-  page: { padding: 36, fontSize: 9, fontFamily: "Helvetica", color: "#18181b" },
-  header: { flexDirection: "row", justifyContent: "space-between", borderBottom: "2 solid #0f766e", paddingBottom: 8, marginBottom: 12 },
-  brand: { fontSize: 16, fontFamily: "Helvetica-Bold", color: "#0f766e" },
+  page: { padding: 36, fontSize: 9, fontFamily: "Helvetica", color: MARCA.texto },
+  header: { flexDirection: "row", justifyContent: "space-between", borderBottom: `2 solid ${MARCA.primario}`, paddingBottom: 8, marginBottom: 12 },
+  brand: { fontSize: 16, fontFamily: "Helvetica-Bold", color: MARCA.primario },
   title: { fontSize: 12, fontFamily: "Helvetica-Bold" },
-  h2: { fontSize: 11, fontFamily: "Helvetica-Bold", color: "#0f766e", marginTop: 10, marginBottom: 4 },
+  h2: { fontSize: 11, fontFamily: "Helvetica-Bold", color: MARCA.primario, marginTop: 10, marginBottom: 4 },
   kpis: { flexDirection: "row", gap: 8 },
-  kpi: { flex: 1, border: "1 solid #e4e4e7", borderRadius: 4, padding: 6 },
+  kpi: { flex: 1, border: `1 solid ${MARCA.borde}`, borderRadius: 4, padding: 6 },
   kpiV: { fontSize: 12, fontFamily: "Helvetica-Bold" },
-  muted: { color: "#71717a" },
-  tr: { flexDirection: "row", borderBottom: "1 solid #e4e4e7", paddingVertical: 3 },
-  th: { fontFamily: "Helvetica-Bold", backgroundColor: "#f4f4f5" },
+  muted: { color: MARCA.tenue },
+  tr: { flexDirection: "row", borderBottom: `1 solid ${MARCA.borde}`, paddingVertical: 3 },
+  th: { fontFamily: "Helvetica-Bold", backgroundColor: MARCA.superficie },
   c: { flex: 1, paddingHorizontal: 3 },
   cw: { flex: 2, paddingHorizontal: 3 },
   r: { textAlign: "right" },
-  footer: { position: "absolute", bottom: 24, left: 36, right: 36, fontSize: 8, color: "#71717a", textAlign: "center" },
+  footer: { position: "absolute", bottom: 24, left: 36, right: 36, fontSize: 8, color: MARCA.tenue, textAlign: "center" },
 });
 
 const Fila = ({ cells, head, wide = 0 }: { cells: (string | number)[]; head?: boolean; wide?: number }) => (

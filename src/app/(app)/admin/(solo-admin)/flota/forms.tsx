@@ -4,9 +4,10 @@ import { useActionState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { FormMessage, InputField, SubmitButton } from "@/components/form/fields";
 import { alternarActivo, guardarConductor, guardarVehiculo } from "../actions";
+import { conAviso } from "@/lib/aviso";
 
 export function ActivoToggle({ tabla, id, activo }: { tabla: "vehiculos" | "conductores" | "servicios"; id: number; activo: boolean }) {
-  return <Switch defaultChecked={activo} onCheckedChange={(v: boolean) => alternarActivo(tabla, id, v)} aria-label="Activo" />;
+  return <Switch defaultChecked={activo} onCheckedChange={(v: boolean) => conAviso(alternarActivo(tabla, id, v))} aria-label="Activo" />;
 }
 
 export function VehiculoForm() {
@@ -27,7 +28,7 @@ export function ConductorForm() {
   return (
     <form action={action} className="grid gap-2 rounded-lg border bg-muted/30 p-3 sm:grid-cols-3">
       <InputField name="nombre" label="Nombre" state={state} required />
-      <InputField name="telefono" label="Teléfono" type="tel" state={state} />
+      <InputField name="telefono" label="Teléfono" type="tel" state={state} placeholder="+56 9 1234 5678" />
       <InputField name="licencia" label="Licencia" state={state} placeholder="A2, B..." />
       <div className="flex items-center gap-3 sm:col-span-3"><SubmitButton variant="outline">Agregar conductor</SubmitButton><FormMessage state={state} /></div>
     </form>

@@ -25,11 +25,7 @@ export default async function ListoPage({ params, searchParams }: { params: Prom
         {Number(r.saldo_pendiente) > 0 ? `Saldo pendiente: ${formatCLP(r.saldo_pendiente)}.` : "Sin saldo pendiente."}
       </p>
       <div className="flex flex-wrap justify-center gap-2">
-        {acta.pdf_path ? (
-          <Button render={<a href={`/api/actas/${acta.id}`} target="_blank" rel="noopener" />}>Abrir acta PDF</Button>
-        ) : (
-          <p className="text-sm text-destructive">El PDF no pudo generarse. Puedes reintentarlo desde la reserva.</p>
-        )}
+        <Button render={<a href={`/api/actas/${acta.id}`} target="_blank" rel="noopener" />}>{acta.pdf_path ? "Abrir acta PDF" : "Generar acta PDF"}</Button>
         <Button variant="outline" render={<Link href="/terreno" />}>Volver a terreno</Button>
       </div>
     </div>

@@ -2,7 +2,9 @@
 # Prueba las reglas de negocio en la base real dentro de una transacción que se revierte (no deja datos).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PSQL="${PSQL:-/c/Program Files/PostgreSQL/18/bin/psql.exe}"
+# psql del PATH (Mac/Linux); si no hay, la ruta de instalación en Windows. Se puede forzar con PSQL=/ruta/psql
+PSQL="${PSQL:-$(command -v psql || echo "/c/Program Files/PostgreSQL/18/bin/psql.exe")}"
+[ -f .env.local ] || { echo "Falta .env.local con SUPABASE_DB_URL"; exit 1; }
 DB=$(grep ^SUPABASE_DB_URL= .env.local | cut -d= -f2- | tr -d '\r')
 
 OUT=$("$PSQL" "$DB" -Atq -v ON_ERROR_STOP=0 <<'SQL' 2>&1
@@ -20,6 +22,10 @@ rollback to b;
 insert into pagos (reserva_id, concepto, medio, monto, estado) select id, 'anticipo', 'efectivo', monto_anticipo, 'aprobado' from reservas where departamento_id=9 and fecha_inicio='2030-03-10';
 select 'T4 estado=' || estado from reservas where departamento_id=9 and fecha_inicio='2030-03-10';
 select 'T5 disponibles=' || count(*) from departamentos_disponibles('2030-03-10','2030-03-13') where id=9;
+insert into reservas (cliente_id, departamento_id, fecha_inicio, fecha_fin, created_at) values ((select id from clientes where rut='22222222-2'), 8, '2030-04-01', '2030-04-03', now() - interval '2 days');
+select 'T6 vencida_libre=' || count(*) from departamentos_disponibles('2030-04-01','2030-04-03') where id=8;
+select 'T7 expiradas>=1 ' || (expirar_reservas_pendientes() >= 1);
+select 'T8 estado=' || estado from reservas where departamento_id=8 and fecha_inicio='2030-04-01';
 rollback;
 SQL
 )
@@ -30,4 +36,7 @@ check "reservas_sin_solape" "anti-overbooking rechaza solape"
 check "reservas activas en el rango" "mantención rechazada sobre reserva activa"
 check "T4 estado=confirmada" "pago del anticipo confirma la reserva"
 check "T5 disponibles=0" "departamento reservado no aparece disponible"
+check "T6 vencida_libre=1" "reserva vencida sin pago no bloquea la búsqueda"
+check "T7 expiradas>=1 true" "vencimiento cancela reservas sin pago"
+check "T8 estado=cancelada" "reserva vencida queda cancelada"
 echo "Reglas de negocio OK"

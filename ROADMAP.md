@@ -66,7 +66,7 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - [x] `/admin/flota`: vehículos y conductores (alta y activar/desactivar). `/admin/reservas/[id]`: programar traslados (llegada/salida/tour, vehículo, conductor, ruta), completar/cancelar. Van en el correo de coordinación 48 h.
 - [x] `/admin/servicios`: catálogo de tours/equipamiento (crear, editar, activar). Venta presencial desde la reserva (recalcula el total por trigger).
 - [x] `/admin/mantenciones`: programar (bloqueo automático y rechazo si hay reservas activas), iniciar, completar con costo final (genera egreso), cancelar.
-- shortcut: la hora de los traslados se interpreta en la zona del servidor; fijar `TZ=America/Santiago` en el hosting.
+- La hora de los traslados se convierte explícitamente desde hora de Chile (`fechaHoraChileAISO` en `src/lib/fechas.ts`); no depende de la zona del servidor.
 
 ### Fase 7 – Finanzas y reportería (RF19, RF20, RF21, RF22)
 - [x] `/admin/finanzas`: movimientos con filtro por fechas y tipo, totales del período, registro manual (dividendos, contribuciones, otros). Arriendos, servicios, cargos, reparaciones y mantenciones se registran solos por triggers.
@@ -75,11 +75,14 @@ Fuente: Entrega 1 (ERS, EDT, Mockups). Stack: Next.js (App Router, última versi
 - Omitido: gráficos con librería (se usaron barras CSS sin dependencias).
 
 ### Fase 8 – QA, seguridad y despliegue (RNF06-08, RNF11, RNF12, RNF13)
-- [x] Pruebas: `npm test` (RUT, períodos, mensajes de error) y `bash scripts/test-db.sh` (arriendo/anticipo, anti-overbooking, bloqueo por mantención, confirmación por pago, disponibilidad). Flujos de reserva, Webpay, check-in/out verificados manualmente en navegador en cada fase.
+- [x] Pruebas: `npm test` (RUT, períodos, mensajes de error, reglas de fechas en `src/lib/fechas.ts`: estadías no pasadas, salida posterior, máximo 30 noches y 1 año de anticipación, nacimientos no futuros ni mayores a 120 años, fechas contables no futuras, traslados dentro de la estadía; contacto en `src/lib/contacto.ts`: correo normalizado en minúsculas, teléfono validado y guardado en formato internacional, RUT con dígito verificador o pasaporte alfanumérico, nombres solo con letras) y `bash scripts/test-db.sh` (arriendo/anticipo, anti-overbooking, bloqueo por mantención, confirmación por pago, disponibilidad). Flujos de reserva, Webpay, check-in/out verificados manualmente en navegador en cada fase.
 - [x] Auditoría BD: RLS en todas las tablas, funciones definer con search_path fijo, vistas security_invoker; se revocó a anon/authenticated `encolar_notificaciones_programadas` y `recalcular_reserva` (migración 0007).
 - [x] Índices en FKs consultadas (migración 0007). Respaldos: Supabase hace backups diarios automáticos en el plan del proyecto.
 - [x] README con pasos de despliegue en Vercel, variables de entorno y manual breve por rol.
-- [ ] Deploy a Vercel: importar el repo, cargar variables (ver README) y agregar la URL en Supabase Auth.
+- [x] Revisión de seguridad (migración 0008): el cliente ya no inserta directo en `reservas` ni `reserva_servicios` (solo vía `crear_reserva`), precio de servicio no negativo, reservas sin pago vencen a las 24 h (`horas_expiracion_reserva`) y máximo 3 pendientes por cliente (`max_reservas_pendientes`); el cron exige `CRON_SECRET`; las fotos se suben directo a Storage desde el navegador con límite de 5 MB y tipo en el bucket.
+- [x] Robustez (migración 0009): check-in y check-out en una transacción (`registrar_acta`), PDF del acta regenerable al abrirlo (`src/lib/actas.ts`), un solo pago Webpay pendiente por reserva, reembolsos con tope en lo pagado, movimiento de inventario atómico (`registrar_movimiento_inventario`), correos enviados en segundo plano con hasta 3 reintentos, ficha de clientes editable solo por admin, acciones de botón con aviso de error (`src/lib/aviso.ts`). Clientes, departamentos e inventario viven en `admin/(solo-admin)/`.
+- [x] Calidad: listados de reservas, clientes y finanzas paginados de a 50 (`src/lib/paginacion.ts`, `src/components/paginacion.tsx`) con totales de finanzas y del panel sumados sobre todo el período (`src/lib/finanzas.ts`); buscadores que limpian la sintaxis de PostgREST (`src/lib/busqueda.ts`); páginas de error, 404 y carga (`error.tsx`, `not-found.tsx`, `global-error.tsx`, `(app)/loading.tsx`); perfil en caché por petición (`perfilActual`); tonos de estado como tokens (`--exito`, `--aviso`, `--taller`, `--peligro`) y colores de marca para correos y PDF en `src/lib/marca.ts`; CI en GitHub Actions (`.github/workflows/ci.yml`: lint, tipos, pruebas y build).
+- [x] Deploy a Vercel.
 
 ## Estado
 Fase actual: 8 (Fase 7 cerrada el 14-10-2026). Webpay/SendGrid siguen en modo integración/simulado hasta tener credenciales. Actualizar esta sección al cerrar cada fase.
