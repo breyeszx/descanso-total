@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EstadoBadge } from "@/components/estado-badge";
 import { formatCLP, formatDate, hoyISO } from "@/lib/format";
+import { filtroBusqueda, terminoBusqueda } from "@/lib/busqueda";
 
 export const metadata = { title: "Terreno" };
 
 export default async function TerrenoPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
+  const q = terminoBusqueda((await searchParams).q);
+  const filtro = filtroBusqueda(q, ["codigo", "cliente_nombre", "cliente_apellido", "cliente_rut"]);
   const supabase = await createClient();
   const hoy = hoyISO();
 
@@ -16,7 +18,7 @@ export default async function TerrenoPage({ searchParams }: { searchParams: Prom
   const [{ data: llegadas }, { data: salidas }, { data: busqueda }] = await Promise.all([
     base().in("estado", ["confirmada", "pendiente_pago"]).lte("fecha_inicio", hoy).gte("fecha_fin", hoy).order("fecha_inicio"),
     base().eq("estado", "en_curso").order("fecha_fin"),
-    q ? base().or(`codigo.ilike.%${q}%,cliente_nombre.ilike.%${q}%,cliente_apellido.ilike.%${q}%,cliente_rut.ilike.%${q}%`).in("estado", ["confirmada", "pendiente_pago", "en_curso"]).limit(10) : Promise.resolve({ data: null }),
+    filtro ? base().or(filtro).in("estado", ["confirmada", "pendiente_pago", "en_curso"]).limit(10) : Promise.resolve({ data: null }),
   ]);
 
   return (
@@ -81,7 +83,7 @@ function Tarjeta({ r, hoy }: { r: R; hoy?: string }) {
       <div className="text-sm">
         <p className="font-medium">{r.cliente_nombre} {r.cliente_apellido ?? ""} · {r.num_huespedes} huésped(es)</p>
         <p className="text-muted-foreground">{formatDate(r.fecha_inicio)} → {formatDate(r.fecha_fin)}{vence ? " · Sale hoy" : ""}</p>
-        {Number(r.saldo_pendiente) > 0 && <p className="text-amber-700 dark:text-amber-400">Saldo pendiente {formatCLP(r.saldo_pendiente)}</p>}
+        {Number(r.saldo_pendiente) > 0 && <p className="text-aviso">Saldo pendiente {formatCLP(r.saldo_pendiente)}</p>}
       </div>
       <Button size="lg" className="w-full" render={<Link href={href} />}>
         {enCurso ? "Hacer check-out" : "Hacer check-in"}

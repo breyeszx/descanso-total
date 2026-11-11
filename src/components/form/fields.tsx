@@ -20,7 +20,7 @@ export function SubmitButton({ children, className, variant }: { children: React
 export function FormMessage({ state }: { state: FormState }) {
   if (!state?.error && !state?.ok) return null;
   return (
-    <p className={cn("text-sm", state.error ? "text-destructive" : "text-green-600")} role="status">
+    <p className={cn("text-sm", state.error ? "text-destructive" : "text-exito")} role="status">
       {state.error ?? state.ok}
     </p>
   );

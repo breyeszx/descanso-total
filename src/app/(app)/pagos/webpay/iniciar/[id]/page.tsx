@@ -20,7 +20,7 @@ export default async function IniciarWebpayPage({ params }: { params: Promise<{ 
       <h1 className="text-xl font-semibold">Redirigiendo a Webpay Plus</h1>
       <p className="text-sm text-muted-foreground">Vas a pagar {formatCLP(pago.monto)}. Si no avanzas automáticamente, usa el botón.</p>
       {webpayEsIntegracion && (
-        <p className="rounded-lg bg-amber-100 p-2 text-xs text-amber-900 dark:bg-amber-900/30 dark:text-amber-200">
+        <p className="rounded-lg border border-aviso/30 bg-aviso/10 p-2 text-xs text-aviso">
           Ambiente de pruebas de Transbank. Tarjeta de prueba: 4051 8856 0044 6623, CVV 123, cualquier fecha. RUT 11.111.111-1, clave 123.
         </p>
       )}

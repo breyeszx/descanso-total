@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EstadoBadge } from "@/components/estado-badge";
 import { formatCLP, formatDate, hoyISO } from "@/lib/format";
+import { totalesMovimientos } from "@/lib/finanzas";
 
 export const metadata = { title: "Panel" };
 
@@ -28,7 +29,7 @@ export default async function DashboardPage() {
 
   const supabase = await createClient();
   const hoy = hoyISO();
-  const [{ data: deps }, { count: clientes }, { data: proximas }, { data: ingresosMes }] = await Promise.all([
+  const [{ data: deps }, { count: clientes }, { data: proximas }, { ingresos: totalIngresos }] = await Promise.all([
     supabase.from("vw_departamentos").select("id, codigo, nombre, zona_nombre, estado_actual, foto_portada").order("codigo"),
     supabase.from("clientes").select("id", { count: "exact", head: true }),
     supabase
@@ -38,12 +39,11 @@ export default async function DashboardPage() {
       .gte("fecha_fin", hoy)
       .order("fecha_inicio")
       .limit(8),
-    supabase.from("movimientos_financieros").select("monto").eq("tipo", "ingreso").gte("fecha", hoy.slice(0, 8) + "01"),
+    totalesMovimientos({ desde: hoy.slice(0, 8) + "01", tipo: "ingreso" }),
   ]);
 
   const conteo: Record<string, number> = {};
   for (const d of deps ?? []) conteo[d.estado_actual ?? "disponible"] = (conteo[d.estado_actual ?? "disponible"] ?? 0) + 1;
-  const totalIngresos = (ingresosMes ?? []).reduce((a, m) => a + Number(m.monto), 0);
 
   return (
     <div className="space-y-6">

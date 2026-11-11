@@ -3,17 +3,18 @@ import { after } from "next/server";
 import { correoDisponible, enviarCorreo, plantilla, type ResultadoEnvio } from "@/lib/email";
 import { formatCLP, formatDate, formatDateTime } from "@/lib/format";
 import { appUrl } from "@/lib/webpay";
+import { MARCA } from "@/lib/marca";
 import type { Tables } from "@/lib/supabase/database.types";
 
 type Payload = Record<string, unknown>;
 const str = (v: unknown) => (v == null ? "" : String(v));
 
 function fila(label: string, valor: string) {
-  return `<tr><td style="padding:6px 0;color:#71717a">${label}</td><td style="padding:6px 0;text-align:right;font-weight:bold">${valor}</td></tr>`;
+  return `<tr><td style="padding:6px 0;color:${MARCA.tenue}">${label}</td><td style="padding:6px 0;text-align:right;font-weight:bold">${valor}</td></tr>`;
 }
 const tabla = (filas: string) => `<table role="presentation" width="100%" style="font-size:14px;margin:12px 0">${filas}</table>`;
 const boton = (href: string, texto: string) =>
-  `<p style="margin:20px 0"><a href="${href}" style="background:#0f766e;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;display:inline-block">${texto}</a></p>`;
+  `<p style="margin:20px 0"><a href="${href}" style="background:${MARCA.primario};color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;display:inline-block">${texto}</a></p>`;
 
 /** Construye asunto + HTML según el tipo de notificación. */
 export function renderNotificacion(n: Tables<"notificaciones">): { subject: string; html: string } {
@@ -29,7 +30,7 @@ export function renderNotificacion(n: Tables<"notificaciones">): { subject: stri
           <p>Gracias por reservar con Descanso Total. Para confirmarla, paga el anticipo en línea.</p>
           ${tabla(fila("Departamento", str(p.departamento)) + fila("Llegada", formatDate(str(p.inicio))) + fila("Salida", formatDate(str(p.fin))) + fila("Anticipo", formatCLP(Number(p.anticipo))))}
           ${boton(link, "Pagar anticipo")}
-          <p style="font-size:13px;color:#71717a">Recuerda registrar a tus acompañantes antes del check-in.</p>`),
+          <p style="font-size:13px;color:${MARCA.tenue}">Recuerda registrar a tus acompañantes antes del check-in.</p>`),
       };
     case "comprobante_pago":
       return {

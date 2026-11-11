@@ -25,7 +25,7 @@ export function PagoPanel({ reservaId, estado, anticipoPendiente, saldo, resulta
   return (
     <div className="flex flex-col gap-3 text-sm">
       {msg && (
-        <p className={msg.ok ? "rounded-lg bg-green-100 p-2 text-green-800 dark:bg-green-900/30 dark:text-green-200" : "rounded-lg bg-destructive/10 p-2 text-destructive"} role="status">
+        <p className={msg.ok ? "rounded-lg bg-exito/10 p-2 text-exito" : "rounded-lg bg-destructive/10 p-2 text-destructive"} role="status">
           {msg.texto}
         </p>
       )}

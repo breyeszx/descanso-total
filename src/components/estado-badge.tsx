@@ -1,33 +1,43 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const ESTADOS: Record<string, { label: string; className: string }> = {
+/** Tonos semánticos definidos en globals.css; se adaptan solos al modo oscuro. */
+const TONO = {
+  exito: "border-exito/25 bg-exito/10 text-exito",
+  aviso: "border-aviso/30 bg-aviso/10 text-aviso",
+  info: "border-primary/25 bg-primary/10 text-primary",
+  taller: "border-taller/25 bg-taller/10 text-taller",
+  peligro: "border-peligro/25 bg-peligro/10 text-peligro",
+  neutro: "border-border bg-muted text-muted-foreground",
+} as const;
+
+const ESTADOS: Record<string, { label: string; tono: keyof typeof TONO }> = {
   // departamentos
-  disponible: { label: "Disponible", className: "bg-green-100 text-green-800 border-green-200" },
-  reservado: { label: "Reservado", className: "bg-blue-100 text-blue-800 border-blue-200" },
-  ocupado: { label: "Ocupado", className: "bg-amber-100 text-amber-800 border-amber-200" },
-  en_mantencion: { label: "En mantención", className: "bg-purple-100 text-purple-800 border-purple-200" },
-  inactivo: { label: "Inactivo", className: "bg-gray-100 text-gray-700 border-gray-200" },
+  disponible: { label: "Disponible", tono: "exito" },
+  reservado: { label: "Reservado", tono: "info" },
+  ocupado: { label: "Ocupado", tono: "aviso" },
+  en_mantencion: { label: "En mantención", tono: "taller" },
+  inactivo: { label: "Inactivo", tono: "neutro" },
   // reservas
-  pendiente_pago: { label: "Pendiente de pago", className: "bg-amber-100 text-amber-800 border-amber-200" },
-  confirmada: { label: "Confirmada", className: "bg-blue-100 text-blue-800 border-blue-200" },
-  en_curso: { label: "En curso", className: "bg-green-100 text-green-800 border-green-200" },
-  finalizada: { label: "Finalizada", className: "bg-gray-100 text-gray-700 border-gray-200" },
-  cancelada: { label: "Cancelada", className: "bg-red-100 text-red-800 border-red-200" },
-  no_show: { label: "No se presentó", className: "bg-red-100 text-red-800 border-red-200" },
+  pendiente_pago: { label: "Pendiente de pago", tono: "aviso" },
+  confirmada: { label: "Confirmada", tono: "info" },
+  en_curso: { label: "En curso", tono: "exito" },
+  finalizada: { label: "Finalizada", tono: "neutro" },
+  cancelada: { label: "Cancelada", tono: "peligro" },
+  no_show: { label: "No se presentó", tono: "peligro" },
   // pagos
-  pendiente: { label: "Pendiente", className: "bg-amber-100 text-amber-800 border-amber-200" },
-  aprobado: { label: "Aprobado", className: "bg-green-100 text-green-800 border-green-200" },
-  rechazado: { label: "Rechazado", className: "bg-red-100 text-red-800 border-red-200" },
-  anulado: { label: "Anulado", className: "bg-gray-100 text-gray-700 border-gray-200" },
+  pendiente: { label: "Pendiente", tono: "aviso" },
+  aprobado: { label: "Aprobado", tono: "exito" },
+  rechazado: { label: "Rechazado", tono: "peligro" },
+  anulado: { label: "Anulado", tono: "neutro" },
   // inventario
-  bueno: { label: "Bueno", className: "bg-green-100 text-green-800 border-green-200" },
-  deteriorado: { label: "Deteriorado", className: "bg-amber-100 text-amber-800 border-amber-200" },
-  en_reparacion: { label: "En reparación", className: "bg-purple-100 text-purple-800 border-purple-200" },
-  baja: { label: "Dado de baja", className: "bg-gray-100 text-gray-700 border-gray-200" },
+  bueno: { label: "Bueno", tono: "exito" },
+  deteriorado: { label: "Deteriorado", tono: "aviso" },
+  en_reparacion: { label: "En reparación", tono: "taller" },
+  baja: { label: "Dado de baja", tono: "neutro" },
   // mantenciones
-  programada: { label: "Programada", className: "bg-blue-100 text-blue-800 border-blue-200" },
-  completada: { label: "Completada", className: "bg-gray-100 text-gray-700 border-gray-200" },
+  programada: { label: "Programada", tono: "info" },
+  completada: { label: "Completada", tono: "neutro" },
 };
 
 export function estadoLabel(estado: string) {
@@ -35,10 +45,10 @@ export function estadoLabel(estado: string) {
 }
 
 export function EstadoBadge({ estado, className }: { estado: string; className?: string }) {
-  const e = ESTADOS[estado] ?? { label: estado, className: "" };
+  const e = ESTADOS[estado];
   return (
-    <Badge variant="outline" className={cn("font-medium", e.className, className)}>
-      {e.label}
+    <Badge variant="outline" className={cn("font-medium", e && TONO[e.tono], className)}>
+      {e?.label ?? estado}
     </Badge>
   );
 }

@@ -158,7 +158,7 @@ export function TerrenoForm({ modo, reserva: r, acompanantes, items, estadoEntra
               </div>
               <SelectField name="cobro_medio" label="Medio de pago" state={state} options={[{ value: "efectivo", label: "Efectivo" }, { value: "transferencia", label: "Transferencia" }, { value: "webpay", label: "Webpay (POS / enlace)" }]} />
             </div>
-            {saldoFinal - cobro > 0 && <p className="text-xs text-amber-700 dark:text-amber-400">Quedará un saldo pendiente de {formatCLP(saldoFinal - cobro)}.</p>}
+            {saldoFinal - cobro > 0 && <p className="text-xs text-aviso">Quedará un saldo pendiente de {formatCLP(saldoFinal - cobro)}.</p>}
             <Button type="button" variant="ghost" size="sm" className="w-fit" onClick={() => setCobro(saldoFinal)}>Cobrar saldo completo</Button>
           </CardContent>
         </Card>
